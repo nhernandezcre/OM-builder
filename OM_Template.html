@@ -20,8 +20,9 @@ body{background:#888;font-family:'DM Sans',sans-serif;color:var(--g800);-webkit-
 
 /* ===== TOOLBAR ===== */
 #toolbar{position:fixed;top:0;left:0;right:0;height:58px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.4)}
-#toolbar .tl-brand{font-family:'Bebas Neue';font-size:15px;letter-spacing:3px;color:white}
+#toolbar .tl-brand{font-family:'Bebas Neue';font-size:15px;letter-spacing:3px;color:white;display:flex;align-items:center;gap:8px}
 #toolbar .tl-brand span{color:var(--teal)}
+#toolbar .tl-brand .brand-logo{height:32px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:none}
 #toolbar .tl-hint{font-size:11px;color:rgba(255,255,255,.45);text-align:center;line-height:1.5}
 #toolbar .tl-hint strong{color:rgba(255,255,255,.75)}
 #toolbar .tl-actions{display:flex;gap:10px;align-items:center}
@@ -29,6 +30,8 @@ body{background:#888;font-family:'DM Sans',sans-serif;color:var(--g800);-webkit-
 #btn-pdf:hover{opacity:.85}
 #btn-reset{background:transparent;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.15);font-family:'DM Sans';font-size:11px;padding:8px 14px;cursor:pointer;border-radius:2px}
 #btn-reset:hover{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.35)}
+#btn-upload-logo{background:rgba(0,180,216,.15);color:var(--teal);border:1px solid rgba(0,180,216,.3);font-family:'DM Sans';font-size:11px;padding:8px 14px;cursor:pointer;border-radius:2px}
+#btn-upload-logo:hover{background:rgba(0,180,216,.3)}
 @media print{#toolbar{display:none!important}}
 
 /* ===== TEXT FORMAT BAR ===== */
@@ -36,6 +39,14 @@ body{background:#888;font-family:'DM Sans',sans-serif;color:var(--g800);-webkit-
 #fmt-bar button{background:none;border:1px solid rgba(255,255,255,.15);color:white;font-size:11px;padding:3px 7px;cursor:pointer;border-radius:2px;font-family:'DM Sans'}
 #fmt-bar button:hover{background:rgba(0,180,216,.3);border-color:var(--teal)}
 @media print{#fmt-bar{display:none!important}}
+
+/* ===== IMAGE CONTROL BAR ===== */
+.img-ctrl{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:rgba(11,29,58,.92);border:1px solid rgba(0,180,216,.3);border-radius:4px;padding:4px 6px;display:none;gap:3px;align-items:center;z-index:15;box-shadow:0 3px 12px rgba(0,0,0,.5);white-space:nowrap}
+.filled:hover .img-ctrl{display:flex}
+.img-ctrl button{background:none;border:1px solid rgba(255,255,255,.2);color:white;font-size:10px;padding:2px 8px;cursor:pointer;border-radius:2px;font-family:'DM Sans';line-height:1.3}
+.img-ctrl button:hover{background:rgba(0,180,216,.4);border-color:var(--teal)}
+.img-ctrl .lbl{color:rgba(255,255,255,.5);font-size:8px;font-family:'Bebas Neue';letter-spacing:1px;padding:0 3px}
+@media print{.img-ctrl{display:none!important}}
 
 /* ===== SCREEN-ONLY CONTROLS ===== */
 .screen-only{display:block}
@@ -50,12 +61,6 @@ body{background:#888;font-family:'DM Sans',sans-serif;color:var(--g800);-webkit-
 .del-comp-btn{position:absolute;top:5px;right:5px;width:18px;height:18px;background:rgba(220,50,50,.85);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;z-index:10}
 .cc:hover .del-comp-btn{display:flex}
 @media print{.del-comp-btn{display:none!important}}
-
-/* Image reposition button */
-.img-adjust{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.6);color:white;border:none;font-size:9px;padding:3px 8px;cursor:pointer;border-radius:2px;z-index:5;display:none;font-family:'DM Sans'}
-.img-adjust:hover{background:rgba(0,180,216,.8)}
-.ph-zone:hover .img-adjust,.filled:hover .img-adjust{display:block}
-@media print{.img-adjust{display:none!important}}
 
 /* Cover upload */
 .cover-upload-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.35);color:white;font-family:'Bebas Neue';font-size:12px;letter-spacing:2px;padding:14px 28px;cursor:pointer;border-radius:3px}
@@ -84,8 +89,10 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .hdr .s{font-family:'Bebas Neue';font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.65)}
 .hdr .p{font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:var(--teal)}
 .hdr .a{font-size:7px;color:rgba(255,255,255,.3)}
+.hdr .hdr-logo{height:16px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:none}
 .ftr{position:absolute;bottom:0;left:0;right:0;height:20px;background:var(--navy);display:flex;align-items:center;justify-content:center;gap:12px}
 .ftr span{font-size:6px;color:var(--teal);letter-spacing:2px;text-transform:uppercase}
+.ftr .ftr-logo{height:12px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:none}
 
 /* Utility */
 .sec-label{font-family:'Bebas Neue';font-size:9px;letter-spacing:4px;color:var(--teal)}
@@ -100,7 +107,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cover .ov{position:absolute;inset:0;background:linear-gradient(to right,rgba(11,29,58,.82) 0%,rgba(11,29,58,.45) 50%,rgba(11,29,58,.1) 100%);z-index:2}
 .cover .ct{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 30px}
 .cover .om{position:absolute;top:16px;right:22px;font-family:'Bebas Neue';font-size:9px;letter-spacing:3px;color:var(--teal);background:rgba(11,29,58,.65);border:1px solid rgba(0,180,216,.25);padding:4px 12px;z-index:5}
-.cover .br{position:absolute;top:16px;left:22px;font-family:'Bebas Neue';font-size:12px;letter-spacing:3px;color:white;z-index:5}
+.cover .br{position:absolute;top:12px;left:22px;z-index:5;display:flex;align-items:center;gap:8px}
+.cover .br .br-text{font-family:'Bebas Neue';font-size:12px;letter-spacing:3px;color:white}
+.cover .br .cover-logo{height:40px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:none}
 .cover .ol{font-family:'Bebas Neue';font-size:9px;letter-spacing:5px;color:var(--teal);margin-bottom:5px}
 .cover h1{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:white;line-height:1.02;margin-bottom:3px;max-width:62%}
 .cover h1 em{font-style:italic;color:var(--teal)}
@@ -109,12 +118,12 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cover .st{flex:1;text-align:center;padding:10px 5px;border-right:1px solid rgba(255,255,255,.07)}
 .cover .st:last-child{border:none}
 .cover .st .v{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:white}
-.cover .st .l{font-size:6.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--g400);margin-top:2px}
+.cover .st .l{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--g400);margin-top:2px}
 .cover .bt{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);max-width:620px}
 .cover .bt .b{font-family:'Bebas Neue';font-size:11px;letter-spacing:3px;color:var(--teal)}
 .cover .bt .ags{display:flex;gap:16px}
-.cover .bt .ag .n{font-size:8px;font-weight:700;color:white}
-.cover .bt .ag .d{font-size:6.5px;color:var(--g400)}
+.cover .bt .ag .n{font-size:9px;font-weight:700;color:white}
+.cover .bt .ag .d{font-size:7px;color:var(--g400)}
 
 /* ===== TOC ===== */
 .toc{display:flex}
@@ -145,39 +154,39 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* 3-col exec grid — bigger fonts */
 .eg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.ec3 h3{font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:3px;margin-bottom:5px}
-.er{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--g200);font-size:8px}
+.ec3 h3{font-family:'Bebas Neue';font-size:11px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:3px;margin-bottom:5px}
+.er{display:flex;justify-content:space-between;padding:3.5px 0;border-bottom:1px solid var(--g200);font-size:9.5px}
 .er .el{color:var(--g600);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
 .er .ev{font-weight:700;color:var(--navy)}
 .er .ev.hi{color:var(--teal)}
 
 /* Text body — BIGGER FONTS */
-.tb{font-size:10px;line-height:1.65;color:var(--g800);overflow:hidden}
+.tb{font-size:11px;line-height:1.65;color:var(--g800);overflow:hidden}
 .tb p{margin-bottom:8px;text-align:justify}
 .tb .dc::first-letter{font-family:'Playfair Display',serif;font-size:38px;float:left;line-height:.8;padding-right:5px;padding-top:2px;color:var(--navy);font-weight:900}
 
-/* Photo row (replaces sidebar) */
-.photo-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;height:155px;margin-top:10px;flex-shrink:0}
+/* Photo row — MORE SQUARE */
+.photo-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;height:190px;margin-top:10px;flex-shrink:0}
 .photo-row>div{border-radius:3px;overflow:hidden;position:relative}
 
 /* Pull quote */
 .pq{background:var(--navy);padding:9px 14px;margin:8px 0;border-left:2px solid var(--teal);border-radius:0 3px 3px 0}
-.pq p{font-family:'Playfair Display',serif;font-size:10px;font-style:italic;color:white;line-height:1.45}
-.pq .at{font-family:'DM Sans';font-style:normal;font-size:6px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.pq p{font-family:'Playfair Display',serif;font-size:11px;font-style:italic;color:white;line-height:1.45}
+.pq .at{font-family:'DM Sans';font-style:normal;font-size:7px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
 
 /* Data table — bigger fonts */
-.dt{width:100%;border-collapse:collapse;font-size:8px;margin-top:6px}
-.dt thead th{background:var(--navy);color:white;padding:5px 5px;text-align:left;font-family:'Bebas Neue';font-size:8px;letter-spacing:1px}
+.dt{width:100%;border-collapse:collapse;font-size:9.5px;margin-top:6px}
+.dt thead th{background:var(--navy);color:white;padding:5px 6px;text-align:left;font-family:'Bebas Neue';font-size:9px;letter-spacing:1px}
 .dt thead th:first-child{border-radius:2px 0 0 0}.dt thead th:last-child{border-radius:0 2px 0 0}
-.dt tbody td{padding:3.5px 5px;border-bottom:1px solid var(--g200)}
+.dt tbody td{padding:4px 6px;border-bottom:1px solid var(--g200)}
 .dt tbody tr:nth-child(even){background:var(--g100)}
 .dt .hl{font-weight:700;color:var(--teal)}
-.dt tfoot td{background:var(--navy);color:white;padding:5px 5px;font-weight:700;font-size:8px}
+.dt tfoot td{background:var(--navy);color:white;padding:5px 6px;font-weight:700;font-size:9px}
 
 /* Feature table */
 .ft{width:100%}
 .ft tr{border-bottom:1px solid var(--g200)}
-.ft td{padding:4px 0;font-size:8.5px;vertical-align:top}
+.ft td{padding:4.5px 0;font-size:10px;vertical-align:top}
 .ft td:first-child{font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.3px;width:42%;padding-right:5px}
 .ft td:last-child{color:var(--g600)}
 
@@ -185,46 +194,63 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .p4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;position:absolute;top:26px;left:14px;right:14px;bottom:20px}
 .p4>div{border-radius:3px;overflow:hidden;position:relative}
 
-/* Comp cards — BIGGER */
+/* Comp cards — BIGGER with notes */
 .comps-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.cc{border:1px solid var(--g200);border-radius:4px;overflow:hidden;display:flex;position:relative;min-height:120px}
-.cc .cph{width:40%;position:relative;overflow:hidden;padding:0}
+.cc{border:1px solid var(--g200);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;position:relative;min-height:155px}
+.cc-top{display:flex;flex:1;min-height:0}
+.cc .cph{width:42%;position:relative;overflow:hidden;padding:0}
 .cc .cph .bg{position:absolute;top:6px;right:6px;background:var(--teal);color:white;font-family:'Bebas Neue';font-size:8px;letter-spacing:2px;padding:2px 8px;border-radius:2px;z-index:2}
-.cc .cph .cn{position:absolute;top:6px;left:6px;background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:13px;font-weight:900;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
+.cc .cph .cn{position:absolute;top:6px;left:6px;background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:14px;font-weight:900;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
 .cc .cb{flex:1;padding:10px 12px}
-.cc .ca{font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.2}
-.cc .cg{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}
-.cc .cr{display:flex;justify-content:space-between;font-size:7.5px;padding:2px 0;border-bottom:1px solid var(--g100)}
+.cc .ca{font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.2}
+.cc .cg{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
+.cc .cr{display:flex;justify-content:space-between;font-size:8.5px;padding:2.5px 0;border-bottom:1px solid var(--g100)}
 .cc .cr .cl{color:var(--g400);text-transform:uppercase;letter-spacing:.3px}
 .cc .cr .cv{font-weight:600;color:var(--g800)}
+.cc .comp-note{border-top:1px solid var(--g200);padding:5px 10px;font-size:8.5px;color:var(--g600);font-style:italic;line-height:1.4;background:var(--g100)}
 
-/* Finance boxes */
-.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
-.fb{background:var(--g100);border-radius:4px;padding:10px;border-top:2px solid var(--teal)}
-.fb h4{font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--navy);margin-bottom:6px}
-.fr{display:flex;justify-content:space-between;padding:2px 0;font-size:7.5px;border-bottom:1px solid var(--g200)}
+/* Finance boxes — BIGGER */
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.fb{background:var(--g100);border-radius:4px;padding:12px 14px;border-top:3px solid var(--teal)}
+.fb h4{font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;color:var(--navy);margin-bottom:7px}
+.fr{display:flex;justify-content:space-between;padding:3px 0;font-size:9px;border-bottom:1px solid var(--g200)}
 .fr .fl{color:var(--g600)}.fr .fv{font-weight:700;color:var(--g800)}
-.fr.ac .fv{color:var(--teal);font-size:8px}
+.fr.ac .fv{color:var(--teal);font-size:9.5px}
 
-/* Expense / financing */
+/* Expense / financing — BIGGER */
 .e2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.e2 h4{font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px}
-.oir{display:flex;justify-content:space-between;padding:2.5px 0;font-size:8px;border-bottom:1px solid var(--g200)}
+.e2 h4{font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px}
+.oir{display:flex;justify-content:space-between;padding:3px 0;font-size:9.5px;border-bottom:1px solid var(--g200)}
 .oir .ol{color:var(--g600)}.oir .ov{font-weight:700;color:var(--navy)}
+
+/* ===== COMPANY PROFILE / BROKER CARDS ===== */
+.broker-grid{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.broker-card{background:var(--g100);border-radius:4px;padding:16px;border-top:3px solid var(--teal);display:flex;gap:14px;width:380px;flex-shrink:0}
+.broker-card .bk-photo{width:80px;height:100px;border-radius:4px;flex-shrink:0;overflow:hidden;position:relative}
+.broker-card .bk-info{flex:1}
+.broker-card .bk-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy)}
+.broker-card .bk-title{font-size:8px;color:var(--teal);font-family:'Bebas Neue';letter-spacing:2px;margin:2px 0 6px}
+.broker-card .bk-details{font-size:9px;color:var(--g600);line-height:1.6}
+.broker-card .bk-bio{font-size:8.5px;color:var(--g600);line-height:1.5;margin-top:5px;border-top:1px solid var(--g200);padding-top:5px}
+.del-broker-btn{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:rgba(220,50,50,.85);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;z-index:10}
+.broker-card:hover .del-broker-btn{display:flex}
+@media print{.del-broker-btn{display:none!important}}
 
 /* Back cover */
 .back{background:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
 .back::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 50px,rgba(255,255,255,.006) 50px,rgba(255,255,255,.006) 51px)}
 .back>div{position:relative;z-index:2}
+.back .back-logo-zone{width:80px;height:80px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.back .back-logo-zone img{width:80px;height:80px;object-fit:contain;filter:brightness(0) invert(1)}
 .back .icon{width:50px;height:50px;background:rgba(0,180,216,.1);border:1.5px solid rgba(0,180,216,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Bebas Neue';font-size:16px;color:var(--teal)}
 .back h2{font-family:'Bebas Neue';font-size:24px;color:white;letter-spacing:3px}.back h2 span{color:var(--teal)}
 .back .tag{font-family:'Playfair Display',serif;font-size:10px;font-style:italic;color:rgba(255,255,255,.35);margin:3px 0 16px}
 .back .dv{width:40px;height:2px;background:var(--teal);margin:0 auto 14px}
 .back .cb-x{margin-bottom:12px}
-.back .an{font-weight:700;font-size:10px;color:var(--teal);margin-bottom:1px}
-.back .ai{font-size:7px;color:rgba(255,255,255,.35);line-height:1.5}
-.back .ab{font-size:7px;color:rgba(255,255,255,.2);line-height:1.5;margin-top:18px}
-.back .lg{position:absolute;bottom:10px;left:16px;right:16px;font-size:4.5px;color:rgba(255,255,255,.1);text-align:center;line-height:1.4}
+.back .an{font-weight:700;font-size:11px;color:var(--teal);margin-bottom:1px}
+.back .ai{font-size:8px;color:rgba(255,255,255,.35);line-height:1.5}
+.back .ab{font-size:8px;color:rgba(255,255,255,.2);line-height:1.5;margin-top:18px}
+.back .lg{position:absolute;bottom:10px;left:16px;right:16px;font-size:5px;color:rgba(255,255,255,.1);text-align:center;line-height:1.4}
 
 @media print{.pg{margin:0;box-shadow:none}}
 </style>
@@ -233,9 +259,10 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 <!-- ===== TOOLBAR ===== -->
 <div id="toolbar">
-  <div class="tl-brand">TOP GUN <span>CRE</span> &nbsp;|&nbsp; OM Builder</div>
-  <div class="tl-hint"><strong>Click text to edit &bull; Click photo areas to upload &bull; Shift+click photos to reposition</strong><br>PDF: Chrome Print → <strong>Landscape &bull; Margins: None &bull; Background graphics: On</strong></div>
+  <div class="tl-brand"><img class="brand-logo" id="toolbar-logo">TOP GUN <span>CRE</span> &nbsp;|&nbsp; OM Builder</div>
+  <div class="tl-hint"><strong>Click text to edit &bull; Click photo areas to upload &bull; Hover images for size/position controls</strong><br>PDF: Chrome Print → <strong>Landscape &bull; Margins: None &bull; Background graphics: On</strong></div>
   <div class="tl-actions">
+    <button id="btn-upload-logo" class="screen-only">Upload Logo</button>
     <button id="btn-reset">Reset</button>
     <button id="btn-pdf">DOWNLOAD PDF</button>
   </div>
@@ -255,7 +282,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <div class="pg cover">
   <div class="hero" id="cover-hero"><div class="ph" style="background:var(--slate);border:none;color:rgba(255,255,255,.15)">HERO PROPERTY PHOTO</div></div>
   <div class="ov"></div>
-  <div class="br">TOP GUN CRE</div>
+  <div class="br"><img class="cover-logo" id="cover-logo-img"><span class="br-text">TOP GUN CRE</span></div>
   <div class="om">OFFERING MEMORANDUM</div>
   <button class="cover-upload-btn screen-only" id="cover-upload-btn">&#8679; UPLOAD COVER PHOTO</button>
   <div class="ct">
@@ -271,9 +298,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
     </div>
     <div class="bt">
       <div class="b">TOP GUN CRE</div>
-      <div class="ags">
-        <div class="ag"><div class="n">KENNETH HERSKIND</div><div class="d">(858) 699-4013 &bull; DRE #01872460</div></div>
-        <div class="ag"><div class="n">BRADLEY BACZKOWSKI</div><div class="d">(858) 226-1994 &bull; DRE #02231722</div></div>
+      <div class="ags" id="cover-agents">
+        <div class="ag"><div class="n" contenteditable="true" spellcheck="false">AGENT NAME</div><div class="d" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; DRE #00000000</div></div>
       </div>
     </div>
   </div>
@@ -356,7 +382,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       <div style="border-radius:3px;overflow:hidden;position:relative" class="ph-zone"><div class="ph">PROPERTY PHOTO 3</div></div>
     </div>
   </div>
-  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+  <div class="ftr"><span class="ftr-logo-wrap"><img class="ftr-logo" id="ftr-logo-0"></span><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
 </div>
 
 <!-- ========================= DIVIDER 02 ========================= -->
@@ -430,7 +456,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <div class="pg">
   <div class="hdr"><span class="s">Unit Mix &amp; Rent Roll</span><span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span><span class="p">10</span></div>
   <div class="cpg">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;height:100px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;height:140px;margin-bottom:8px">
       <div style="border-radius:3px;overflow:hidden;position:relative" class="ph-zone"><div class="ph">UNIT INTERIOR</div></div>
       <div style="border-radius:3px;overflow:hidden;position:relative" class="ph-zone"><div class="ph">UNIT INTERIOR</div></div>
     </div>
@@ -451,14 +477,14 @@ img{display:block;width:100%;height:100%;object-fit:cover}
     <div class="row-ctrl screen-only"><button class="btn-add" onclick="addRentRow()">+ Add Unit Row</button></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px">
       <div>
-        <div style="font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px">Other Income (Monthly)</div>
+        <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px">Other Income (Monthly)</div>
         <div class="oir"><span class="ol">Laundry</span><span class="ov" contenteditable="true" spellcheck="false" data-other>$0</span></div>
         <div class="oir"><span class="ol">Parking</span><span class="ov" contenteditable="true" spellcheck="false" data-other>$0</span></div>
         <div class="oir"><span class="ol">Storage</span><span class="ov" contenteditable="true" spellcheck="false" data-other>$0</span></div>
         <div class="oir" style="border-top:2px solid var(--navy);margin-top:3px;padding-top:3px;font-weight:700"><span class="ol">Total Monthly Other</span><span class="ov" data-out="other-monthly">—</span></div>
       </div>
       <div>
-        <div style="font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px">Income Summary (Annual)</div>
+        <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px">Income Summary (Annual)</div>
         <div class="oir"><span class="ol">Gross Rent (Current)</span><span class="ov" data-out="annual-rent-cur">—</span></div>
         <div class="oir"><span class="ol">Gross Rent (Proforma)</span><span class="ov" style="color:var(--teal)" data-out="annual-rent-pro">—</span></div>
         <div class="oir"><span class="ol">Other Income (Annual)</span><span class="ov" data-out="annual-other">—</span></div>
@@ -497,7 +523,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
         </table>
         <div style="height:8px"></div>
         <table class="ft">
-          <tr><td colspan="2" style="font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px">Utilities</td></tr>
+          <tr><td colspan="2" style="font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px">Utilities</td></tr>
           <tr><td>Water</td><td contenteditable="true" spellcheck="false">Landlord / Tenant</td></tr>
           <tr><td>Electric / Gas</td><td contenteditable="true" spellcheck="false">Landlord / Tenant</td></tr>
           <tr><td>Trash</td><td contenteditable="true" spellcheck="false">City / Landlord</td></tr>
@@ -597,7 +623,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
         <div class="fr"><span class="fl">Cash Flow</span><span class="fv" data-out="cf-pro" style="color:var(--teal)">—</span></div>
       </div>
     </div>
-    <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">Annualized Operating Data</div>
+    <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px">Annualized Operating Data</div>
     <table class="dt">
       <thead><tr><th style="width:40%"></th><th>Current</th><th>Proforma</th></tr></thead>
       <tbody>
@@ -621,7 +647,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <div class="pg">
   <div class="hdr"><span class="s">Financial Analysis</span><span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span><span class="p">20</span></div>
   <div class="cpg">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;height:110px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;height:140px;margin-bottom:8px">
       <div style="border-radius:3px;overflow:hidden;position:relative" class="ph-zone"><div class="ph">PROPERTY PHOTO</div></div>
       <div style="border-radius:3px;overflow:hidden;position:relative" class="ph-zone"><div class="ph">PROPERTY PHOTO</div></div>
     </div>
@@ -686,30 +712,25 @@ img{display:block;width:100%;height:100%;object-fit:cover}
     <div class="sec-label">YOUR WINGMEN IN COMMERCIAL REAL ESTATE</div>
     <div class="sec-h" style="font-size:17px">About Top Gun CRE</div>
     <div class="rule"></div>
-    <div style="column-count:2;column-gap:18px;font-size:9px;line-height:1.65;color:var(--g800);margin-bottom:14px">
-      <p style="margin-bottom:6px;text-align:justify">Top Gun CRE is your premiere San Diego commercial real estate brokerage, providing the very top tier of representation through the perfect formation of a superior team, innovative technology, expertise, and a clients-first approach.</p>
-      <p style="margin-bottom:6px;text-align:justify">Created out of a desire to make the local commercial brokerage experience better, Top Gun CRE was founded in late 2017. We believe in being expert advisors to our clients by sharing information and distilling it down into actionable insights.</p>
-      <p style="margin-bottom:6px;text-align:justify">Collectively, we have over 3 decades of broad CRE experience including investment, property management, development, and brokerage. We broker apartments in San Diego County. Our simple but laser-guided focus means the highest level of service.</p>
-      <p style="margin-bottom:6px;text-align:justify">We offer expertise in all multifamily properties and capital markets within San Diego County. We are a boutique firm 100% focused on client success.</p>
+    <div style="column-count:2;column-gap:18px;font-size:10px;line-height:1.65;color:var(--g800);margin-bottom:14px">
+      <p style="margin-bottom:6px;text-align:justify" contenteditable="true" spellcheck="false">Top Gun CRE is your premiere San Diego commercial real estate brokerage, providing the very top tier of representation through the perfect formation of a superior team, innovative technology, expertise, and a clients-first approach.</p>
+      <p style="margin-bottom:6px;text-align:justify" contenteditable="true" spellcheck="false">Created out of a desire to make the local commercial brokerage experience better, Top Gun CRE was founded in late 2017. We believe in being expert advisors to our clients by sharing information and distilling it down into actionable insights.</p>
+      <p style="margin-bottom:6px;text-align:justify" contenteditable="true" spellcheck="false">Collectively, we have over 3 decades of broad CRE experience including investment, property management, development, and brokerage. We broker apartments in San Diego County. Our simple but laser-guided focus means the highest level of service.</p>
+      <p style="margin-bottom:6px;text-align:justify" contenteditable="true" spellcheck="false">We offer expertise in all multifamily properties and capital markets within San Diego County. We are a boutique firm 100% focused on client success.</p>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="background:var(--g100);border-radius:4px;padding:12px;border-top:2px solid var(--teal);display:flex;gap:12px">
-        <div style="width:70px;height:85px;border-radius:3px;flex-shrink:0;overflow:hidden;position:relative" class="ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div>
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--navy)">Kenneth Herskind</div>
-          <div style="font-size:7px;color:var(--teal);font-family:'Bebas Neue';letter-spacing:2px;margin:1px 0 4px">VP &amp; Principal Broker</div>
-          <div style="font-size:7.5px;color:var(--g600);line-height:1.5">(858) 699-4013 &bull; kenh@topguncre.com<br>DRE #01872460<br><br>20+ years multifamily investing &amp; brokerage. International business background. Fluent in Japanese.</div>
-        </div>
-      </div>
-      <div style="background:var(--g100);border-radius:4px;padding:12px;border-top:2px solid var(--teal);display:flex;gap:12px">
-        <div style="width:70px;height:85px;border-radius:3px;flex-shrink:0;overflow:hidden;position:relative" class="ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div>
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--navy)">Bradley Baczkowski</div>
-          <div style="font-size:7px;color:var(--teal);font-family:'Bebas Neue';letter-spacing:2px;margin:1px 0 4px">Wingman</div>
-          <div style="font-size:7.5px;color:var(--g600);line-height:1.5">(858) 226-1994 &bull; bradleyb@topguncre.com<br>DRE #02231722<br><br>SDSU grad, BS Business Admin (RE). ULI &amp; NAIOP member. Deep SD submarket knowledge.</div>
+    <div class="broker-grid" id="broker-grid">
+      <div class="broker-card" style="position:relative">
+        <button class="del-broker-btn screen-only" onclick="deleteBroker(this)" title="Remove">&times;</button>
+        <div class="bk-photo ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div>
+        <div class="bk-info">
+          <div class="bk-name" contenteditable="true" spellcheck="false">Agent Name</div>
+          <div class="bk-title" contenteditable="true" spellcheck="false">TITLE / ROLE</div>
+          <div class="bk-details" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com<br>DRE #00000000</div>
+          <div class="bk-bio" contenteditable="true" spellcheck="false">Brief bio — experience, background, specialties. Click to edit.</div>
         </div>
       </div>
     </div>
+    <div class="row-ctrl screen-only" style="justify-content:center;margin-top:10px"><button class="btn-add" id="btn-add-broker">+ Add Broker</button></div>
   </div>
   <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
 </div>
@@ -717,13 +738,16 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= BACK COVER ========================= -->
 <div class="pg back">
   <div>
-    <div class="icon">TG</div>
+    <div class="back-logo-zone" id="back-logo-zone">
+      <div class="icon" id="back-icon">TG</div>
+    </div>
     <h2>TOP GUN <span>CRE</span></h2>
     <div class="tag">Your Wingmen in Commercial Real Estate</div>
     <div class="dv"></div>
-    <div class="cb-x"><div class="an">Kenneth Herskind</div><div class="ai">(858) 699-4013 &bull; Kenh@topguncre.com &bull; DRE #01872460</div></div>
-    <div class="cb-x"><div class="an">Bradley Baczkowski</div><div class="ai">(858) 226-1994 &bull; Bradleyb@topguncre.com &bull; DRE #02231722</div></div>
-    <div class="ab">1550 Hotel Circle North #225, San Diego, CA 92108<br>(619) 550-4515 &bull; Topguncre.com &bull; DRE #02059064</div>
+    <div id="back-agents">
+      <div class="cb-x"><div class="an" contenteditable="true" spellcheck="false">Agent Name</div><div class="ai" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com &bull; DRE #00000000</div></div>
+    </div>
+    <div class="ab" contenteditable="true" spellcheck="false">1550 Hotel Circle North #225, San Diego, CA 92108<br>(619) 550-4515 &bull; Topguncre.com &bull; DRE #02059064</div>
   </div>
   <div class="lg">The information contained herewith is proprietary and strictly confidential. It is intended to be reviewed only by the party receiving it from Top Gun CRE. This information has been prepared to provide summary, unverified information. Top Gun CRE makes no representation or warranty with respect to the future performance or soundness of said investment strategies. All potential buyers must take appropriate measures to verify all information. &copy; 2025 Top Gun CRE. All rights reserved.</div>
 </div>
@@ -750,7 +774,87 @@ function setOut(name,val){
   document.querySelectorAll('[data-out="'+name+'"]').forEach(function(el){el.textContent=val;});
 }
 
+/* ===== LOGO MANAGEMENT ===== */
+var logoDataURL=null;
+
+function applyLogoEverywhere(dataURL){
+  logoDataURL=dataURL;
+  // Cover logo
+  var cl=document.getElementById('cover-logo-img');
+  if(cl){cl.src=dataURL;cl.style.display='inline-block';}
+  // Toolbar logo
+  var tl=document.getElementById('toolbar-logo');
+  if(tl){tl.src=dataURL;tl.style.display='inline-block';}
+  // Back cover logo
+  var bi=document.getElementById('back-icon');
+  var bz=document.getElementById('back-logo-zone');
+  if(bi&&bz){
+    bi.style.display='none';
+    var existing=bz.querySelector('img');
+    if(existing)existing.remove();
+    var img=document.createElement('img');
+    img.src=dataURL;
+    bz.appendChild(img);
+  }
+}
+
+document.getElementById('btn-upload-logo').addEventListener('click',function(){
+  var input=document.createElement('input');
+  input.type='file';input.accept='image/*';input.style.display='none';
+  document.body.appendChild(input);
+  input.addEventListener('change',function(){
+    var file=input.files[0];
+    if(!file){document.body.removeChild(input);return;}
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      applyLogoEverywhere(ev.target.result);
+      document.body.removeChild(input);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.click();
+});
+
 /* ===== IMAGE UPLOAD ===== */
+function addImageControls(container,img){
+  // Remove any existing controls
+  var old=container.querySelector('.img-ctrl');
+  if(old)old.remove();
+  // Create control bar
+  var bar=document.createElement('div');
+  bar.className='img-ctrl';
+  bar.innerHTML='<span class="lbl">ZOOM</span><button data-act="zout">−</button><button data-act="zin">+</button><span class="lbl">POS</span><button data-act="left">←</button><button data-act="up">↑</button><button data-act="down">↓</button><button data-act="right">→</button><button data-act="reset">Reset</button>';
+  container.appendChild(bar);
+  // Current scale and position
+  if(!img.dataset.scale)img.dataset.scale='1';
+  if(!img.dataset.px)img.dataset.px='50';
+  if(!img.dataset.py)img.dataset.py='50';
+  function applyTransform(){
+    var s=parseFloat(img.dataset.scale);
+    var px=parseFloat(img.dataset.px);
+    var py=parseFloat(img.dataset.py);
+    img.style.objectPosition=px+'% '+py+'%';
+    img.style.transform='scale('+s+')';
+  }
+  bar.addEventListener('click',function(e){
+    e.stopPropagation();
+    var btn=e.target.closest('button');
+    if(!btn)return;
+    var act=btn.dataset.act;
+    var s=parseFloat(img.dataset.scale);
+    var px=parseFloat(img.dataset.px);
+    var py=parseFloat(img.dataset.py);
+    if(act==='zin'){img.dataset.scale=Math.min(3,s+0.15).toFixed(2);}
+    else if(act==='zout'){img.dataset.scale=Math.max(0.5,s-0.15).toFixed(2);}
+    else if(act==='left'){img.dataset.px=Math.max(0,px-8).toFixed(0);}
+    else if(act==='right'){img.dataset.px=Math.min(100,px+8).toFixed(0);}
+    else if(act==='up'){img.dataset.py=Math.max(0,py-8).toFixed(0);}
+    else if(act==='down'){img.dataset.py=Math.min(100,py+8).toFixed(0);}
+    else if(act==='reset'){img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';}
+    applyTransform();
+  });
+}
+
 function triggerUpload(container){
   var input=document.createElement('input');
   input.type='file';input.accept='image/*';input.style.display='none';
@@ -763,10 +867,12 @@ function triggerUpload(container){
       var img=document.createElement('img');
       img.src=ev.target.result;
       img.style.objectPosition='center center';
+      img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';
       var ph=container.querySelector('.ph');
       if(ph)ph.replaceWith(img);
       else{var ex=container.querySelector('img');if(ex)ex.replaceWith(img);}
       container.classList.add('filled');
+      addImageControls(container,img);
       document.body.removeChild(input);
     };
     reader.readAsDataURL(file);
@@ -777,7 +883,8 @@ function attachUpload(zone){
   zone.addEventListener('click',function(e){
     if(e.target.hasAttribute('contenteditable'))return;
     if(e.target.classList.contains('del-comp-btn'))return;
-    if(e.target.classList.contains('img-adjust'))return;
+    if(e.target.classList.contains('del-broker-btn'))return;
+    if(e.target.closest('.img-ctrl'))return;
     triggerUpload(zone);
   });
 }
@@ -787,20 +894,6 @@ document.querySelectorAll('.ph-zone').forEach(attachUpload);
 var coverBtn=document.getElementById('cover-upload-btn');
 var coverHero=document.getElementById('cover-hero');
 if(coverBtn&&coverHero){coverBtn.addEventListener('click',function(){triggerUpload(coverHero);});}
-
-/* ===== IMAGE REPOSITION (shift+click) ===== */
-var positions=['center','top','bottom','left','right','top left','top right','bottom left','bottom right'];
-document.addEventListener('click',function(e){
-  if(!e.shiftKey)return;
-  var img=e.target;
-  if(img.tagName!=='IMG')return;
-  var cur=img.style.objectPosition||'center center';
-  var idx=0;
-  for(var i=0;i<positions.length;i++){if(cur.indexOf(positions[i])!==-1){idx=i;break;}}
-  idx=(idx+1)%positions.length;
-  img.style.objectPosition=positions[idx];
-  e.preventDefault();
-});
 
 /* ===== TEXT FORMATTING TOOLBAR ===== */
 var fmtBar=document.getElementById('fmt-bar');
@@ -847,6 +940,9 @@ document.addEventListener('keydown',function(e){
   var el=e.target;
   if(el.getAttribute('contenteditable')!=='true')return;
   if(el.tagName.toLowerCase()==='p')return;
+  if(el.closest('.tb'))return;
+  if(el.classList.contains('bk-bio'))return;
+  if(el.classList.contains('comp-note'))return;
   e.preventDefault();
 });
 
@@ -871,10 +967,10 @@ window.addExpRow=function(){
 };
 window.deleteExpRow=function(btn){btn.closest('tr').remove();recalc();};
 
-/* ===== COMPS ===== */
+/* ===== COMPS — with notes ===== */
 function makeCompCard(num){
   var div=document.createElement('div');div.className='cc';
-  div.innerHTML='<button class="del-comp-btn screen-only" title="Remove">&times;</button><div class="cph ph-zone"><div class="ph">COMP PHOTO</div><div class="bg">SOLD</div><div class="cn">'+num+'</div></div><div class="cb"><div class="ca" contenteditable="true" spellcheck="false">Comp Address, City ZIP</div><div class="cg"><div class="cr"><span class="cl">Price</span><span class="cv" contenteditable="true" spellcheck="false">$0,000,000</span></div><div class="cr"><span class="cl">Date</span><span class="cv" contenteditable="true" spellcheck="false">MM/DD/YY</span></div><div class="cr"><span class="cl">Units</span><span class="cv" contenteditable="true" spellcheck="false">0</span></div><div class="cr"><span class="cl">$/Unit</span><span class="cv" contenteditable="true" spellcheck="false">$000,000</span></div><div class="cr"><span class="cl">$/SF</span><span class="cv" contenteditable="true" spellcheck="false">$000</span></div><div class="cr"><span class="cl">Cap</span><span class="cv" contenteditable="true" spellcheck="false">0.00%</span></div><div class="cr"><span class="cl">GRM</span><span class="cv" contenteditable="true" spellcheck="false">00.00</span></div><div class="cr"><span class="cl">Built</span><span class="cv" contenteditable="true" spellcheck="false">YYYY</span></div></div></div>';
+  div.innerHTML='<button class="del-comp-btn screen-only" title="Remove">&times;</button><div class="cc-top"><div class="cph ph-zone"><div class="ph">COMP PHOTO</div><div class="bg">SOLD</div><div class="cn">'+num+'</div></div><div class="cb"><div class="ca" contenteditable="true" spellcheck="false">Comp Address, City ZIP</div><div class="cg"><div class="cr"><span class="cl">Price</span><span class="cv" contenteditable="true" spellcheck="false">$0,000,000</span></div><div class="cr"><span class="cl">Date</span><span class="cv" contenteditable="true" spellcheck="false">MM/DD/YY</span></div><div class="cr"><span class="cl">Units</span><span class="cv" contenteditable="true" spellcheck="false">0</span></div><div class="cr"><span class="cl">$/Unit</span><span class="cv" contenteditable="true" spellcheck="false">$000,000</span></div><div class="cr"><span class="cl">$/SF</span><span class="cv" contenteditable="true" spellcheck="false">$000</span></div><div class="cr"><span class="cl">Cap</span><span class="cv" contenteditable="true" spellcheck="false">0.00%</span></div><div class="cr"><span class="cl">GRM</span><span class="cv" contenteditable="true" spellcheck="false">00.00</span></div><div class="cr"><span class="cl">Built</span><span class="cv" contenteditable="true" spellcheck="false">YYYY</span></div></div></div></div><div class="comp-note" contenteditable="true" spellcheck="false">Click to add notes for this comp...</div>';
   attachUpload(div.querySelector('.ph-zone'));
   div.querySelector('.del-comp-btn').addEventListener('click',function(){div.remove();renumberComps();});
   return div;
@@ -886,6 +982,44 @@ document.getElementById('btn-add-comp').addEventListener('click',function(){
   var g=document.getElementById('comps-grid');
   g.appendChild(makeCompCard(g.querySelectorAll('.cc').length+1));
 });
+
+/* ===== BROKER ADD/DELETE ===== */
+function makeBrokerCard(){
+  var card=document.createElement('div');
+  card.className='broker-card';
+  card.style.position='relative';
+  card.innerHTML='<button class="del-broker-btn screen-only" onclick="deleteBroker(this)" title="Remove">&times;</button><div class="bk-photo ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div><div class="bk-info"><div class="bk-name" contenteditable="true" spellcheck="false">Agent Name</div><div class="bk-title" contenteditable="true" spellcheck="false">TITLE / ROLE</div><div class="bk-details" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com<br>DRE #00000000</div><div class="bk-bio" contenteditable="true" spellcheck="false">Brief bio — experience, background, specialties. Click to edit.</div></div>';
+  attachUpload(card.querySelector('.ph-zone'));
+  return card;
+}
+document.getElementById('btn-add-broker').addEventListener('click',function(){
+  var grid=document.getElementById('broker-grid');
+  grid.appendChild(makeBrokerCard());
+  // Also add to cover and back cover
+  var coverAgs=document.getElementById('cover-agents');
+  var agDiv=document.createElement('div');agDiv.className='ag';
+  agDiv.innerHTML='<div class="n" contenteditable="true" spellcheck="false">AGENT NAME</div><div class="d" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; DRE #00000000</div>';
+  coverAgs.appendChild(agDiv);
+  var backAgs=document.getElementById('back-agents');
+  var cbx=document.createElement('div');cbx.className='cb-x';
+  cbx.innerHTML='<div class="an" contenteditable="true" spellcheck="false">Agent Name</div><div class="ai" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com &bull; DRE #00000000</div>';
+  backAgs.appendChild(cbx);
+});
+window.deleteBroker=function(btn){
+  var card=btn.closest('.broker-card');
+  var grid=document.getElementById('broker-grid');
+  var cards=Array.from(grid.querySelectorAll('.broker-card'));
+  var idx=cards.indexOf(card);
+  card.remove();
+  // Also remove from cover and back cover
+  var coverAgs=document.querySelectorAll('#cover-agents .ag');
+  if(coverAgs[idx])coverAgs[idx].remove();
+  var backCbs=document.querySelectorAll('#back-agents .cb-x');
+  if(backCbs[idx])backCbs[idx].remove();
+};
+
+// Attach upload to initial broker card(s)
+document.querySelectorAll('#broker-grid .ph-zone').forEach(attachUpload);
 
 /* ===== AUTO-CALCULATION ENGINE ===== */
 function recalc(){
