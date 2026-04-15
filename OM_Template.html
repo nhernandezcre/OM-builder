@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Top Gun CRE — OM Builder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Bebas+Neue&display=swap');
+
+/* ===================== RESET & VARS ===================== */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0B1D3A;--dark:#061225;--slate:#1A3050;--teal:#00B4D8;
+  --g100:#F5F5F5;--g200:#E8E8E8;--g400:#9BA3AD;--g600:#5A6270;--g800:#2D333B;
+}
+
+/* ===================== PRINT / PDF SETUP ===================== */
+/* Chrome: File → Print → Save as PDF | Orientation: Landscape | Margins: None | Scale: Default */
+@page { size: 11in 8.5in; margin: 0; }
+
+body{
+  background:#888;
+  font-family:'DM Sans',sans-serif;
+  color:var(--g800);
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+@media screen { body { padding-top:58px; } }
+@media print  { body { background:none; padding-top:0; } }
+
+/* ===================== TOOLBAR (screen only) ===================== */
+#toolbar{
+  position:fixed;top:0;left:0;right:0;height:58px;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;z-index:9999;
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+#toolbar .tl-brand{font-family:'Bebas Neue';font-size:15px;letter-spacing:3px;color:white}
+#toolbar .tl-brand span{color:var(--teal)}
+#toolbar .tl-hint{font-size:11px;color:rgba(255,255,255,.45);text-align:center;line-height:1.5}
+#toolbar .tl-hint strong{color:rgba(255,255,255,.75)}
+#toolbar .tl-actions{display:flex;gap:10px;align-items:center}
+#btn-pdf{
+  background:var(--teal);color:white;border:none;
+  font-family:'Bebas Neue';font-size:13px;letter-spacing:2px;
+  padding:9px 22px;cursor:pointer;border-radius:2px;
+  transition:opacity .15s;
+}
+#btn-pdf:hover{opacity:.85}
+#btn-reset{
+  background:transparent;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.15);
+  font-family:'DM Sans';font-size:11px;
+  padding:8px 14px;cursor:pointer;border-radius:2px;
+}
+#btn-reset:hover{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.35)}
+@media print { #toolbar{display:none!important} }
+
+/* ===================== EDITABLE FIELDS (screen only) ===================== */
+@media screen {
+  [contenteditable="true"]:hover{
+    outline:1.5px dashed rgba(0,180,216,.55);
+    border-radius:2px;
+    cursor:text;
+  }
+  [contenteditable="true"]:focus{
+    outline:2px solid var(--teal);
+    border-radius:2px;
+    background:rgba(0,180,216,.05);
+  }
+  /* Placeholder text color */
+  [contenteditable="true"]:not(:focus){color:inherit}
+  .ph-zone{cursor:pointer;position:relative}
+  .ph-zone:hover .ph{border-color:var(--teal);color:var(--teal)}
+  .ph-zone:hover::after{
+    content:'CLICK TO UPLOAD PHOTO';
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,180,216,.12);
+    font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--teal);
+    pointer-events:none;
+  }
+}
+@media print {
+  [contenteditable]{outline:none!important;background:none!important}
+  .ph-zone::after{display:none!important}
+}
+
+/* ===================== PAGE SHELL ===================== */
+.pg{
+  width:11in;height:8.5in;
+  position:relative;overflow:hidden;
+  background:#fff;margin:6px auto;
+  page-break-after:always;page-break-inside:avoid;
+}
+img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* IMAGE PLACEHOLDER */
+.ph{
+  background:var(--g200);border:2px dashed var(--g400);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--g600);font-family:'Bebas Neue';font-size:8px;letter-spacing:2px;
+  text-align:center;padding:8px;width:100%;height:100%;
+  user-select:none;
+}
+
+/* ===================== HEADER / FOOTER ===================== */
+.hdr{position:absolute;top:0;left:0;right:0;height:26px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:20}
+.hdr .s{font-family:'Bebas Neue';font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.65)}
+.hdr .p{font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:var(--teal)}
+.hdr .a{font-size:6.5px;color:rgba(255,255,255,.3)}
+.ftr{position:absolute;bottom:0;left:0;right:0;height:20px;background:var(--navy);display:flex;align-items:center;justify-content:center;gap:12px}
+.ftr span{font-size:5.5px;color:var(--teal);letter-spacing:2px;text-transform:uppercase}
+
+/* Utility */
+.sec-label{font-family:'Bebas Neue';font-size:8px;letter-spacing:4px;color:var(--teal)}
+.sec-h{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--navy);margin-bottom:2px}
+.rule{width:40px;height:2px;background:var(--teal);margin:5px 0 10px}
+
+/* ===================== COVER ===================== */
+.cover{background:var(--navy)}
+.cover .hero{position:absolute;inset:0;z-index:1}
+.cover .hero img{filter:brightness(0.35)}
+.cover .hero .ph{background:var(--slate);border:none;color:rgba(255,255,255,.2)}
+.cover .ov{position:absolute;inset:0;background:linear-gradient(to right,rgba(11,29,58,.93) 0%,rgba(11,29,58,.65) 50%,rgba(11,29,58,.25) 100%);z-index:2}
+.cover .ct{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;justify-content:flex-end;padding:0 36px 30px}
+.cover .om{position:absolute;top:16px;right:22px;font-family:'Bebas Neue';font-size:9px;letter-spacing:3px;color:var(--teal);background:rgba(11,29,58,.75);border:1px solid rgba(0,180,216,.25);padding:4px 12px;z-index:5}
+.cover .br{position:absolute;top:16px;left:22px;font-family:'Bebas Neue';font-size:12px;letter-spacing:3px;color:white;z-index:5}
+.cover .ol{font-family:'Bebas Neue';font-size:9px;letter-spacing:5px;color:var(--teal);margin-bottom:5px}
+.cover h1{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:white;line-height:1.02;margin-bottom:3px;max-width:62%}
+.cover h1 em{font-style:italic;color:var(--teal)}
+.cover .ad{font-size:12px;color:rgba(255,255,255,.5);font-weight:300;margin-bottom:14px}
+.cover .sts{display:flex;gap:0;max-width:600px;margin-bottom:14px}
+.cover .st{flex:1;text-align:center;padding:10px 5px;border-right:1px solid rgba(255,255,255,.07)}
+.cover .st:last-child{border:none}
+.cover .st .v{font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:white}
+.cover .st .l{font-size:5.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--g400);margin-top:1px}
+.cover .bt{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);max-width:600px}
+.cover .bt .b{font-family:'Bebas Neue';font-size:11px;letter-spacing:3px;color:var(--teal)}
+.cover .bt .ags{display:flex;gap:16px}
+.cover .bt .ag .n{font-size:7px;font-weight:700;color:white}
+.cover .bt .ag .d{font-size:5.5px;color:var(--g400)}
+
+/* ===================== TOC ===================== */
+.toc{display:flex}
+.toc .tl{width:42%;background:var(--navy);padding:36px 30px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.toc .tl::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,180,216,.04),transparent)}
+.toc .tl>*{position:relative;z-index:2}
+.toc .tl h2{font-family:'Bebas Neue';font-size:42px;color:white;line-height:1;margin-bottom:22px}
+.toc .tl h2 span{color:var(--teal)}
+.toc .ti{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.toc .ti .num{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--teal);min-width:34px;line-height:1}
+.toc .ti .lbl{font-size:13px;color:rgba(255,255,255,.8);font-weight:300;letter-spacing:.4px}
+.toc .tr{width:58%;overflow:hidden}
+
+/* ===================== SECTION DIVIDER ===================== */
+.sdiv{display:flex}
+.sdiv .sl{width:50%;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:48px;background:var(--g100);position:relative;overflow:hidden}
+.sdiv .sl::after{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--teal),rgba(0,180,216,.2))}
+.sdiv .wm{font-family:'Playfair Display',serif;font-size:300px;font-weight:900;color:var(--navy);opacity:.04;position:absolute;bottom:-80px;right:10px;line-height:1;pointer-events:none;user-select:none}
+.sdiv .sc{position:relative;z-index:2}
+.sdiv .snum{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:var(--navy);line-height:1;margin:8px 0 6px}
+.sdiv .stt{font-family:'Bebas Neue';font-size:22px;letter-spacing:4px}
+.sdiv .stt .w1{color:var(--navy)}.sdiv .stt .w2{color:var(--teal)}
+.sdiv .sr{width:50%;position:relative;overflow:hidden}
+.sdiv .sr .dim{position:absolute;inset:0;background:rgba(11,29,58,.55);z-index:1}
+
+/* ===================== CONTENT PAGES ===================== */
+.cpg{padding:34px 28px 26px;height:calc(8.5in - 46px);box-sizing:border-box;display:flex;flex-direction:column}
+
+/* 3-col exec grid */
+.eg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.ec3 h3{font-family:'Bebas Neue';font-size:9px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:3px;margin-bottom:5px}
+.er{display:flex;justify-content:space-between;padding:2.5px 0;border-bottom:1px solid var(--g200);font-size:7px}
+.er .el{color:var(--g600);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.er .ev{font-weight:700;color:var(--navy)}
+.er .ev.hi{color:var(--teal)}
+
+/* Text + sidebar */
+.ts{display:grid;grid-template-columns:1fr 190px;gap:14px;flex:1;min-height:0}
+.tb{font-size:8.5px;line-height:1.65;color:var(--g800);overflow:hidden}
+.tb p{margin-bottom:7px;text-align:justify}
+.tb .dc::first-letter{font-family:'Playfair Display',serif;font-size:36px;float:left;line-height:.8;padding-right:5px;padding-top:2px;color:var(--navy);font-weight:900}
+.tsd{display:flex;flex-direction:column;gap:5px;height:100%}
+.tsd>div{border-radius:3px;overflow:hidden;flex:1;min-height:0}
+
+/* Pull quote */
+.pq{background:var(--navy);padding:8px 12px;margin:7px 0;border-left:2px solid var(--teal);border-radius:0 3px 3px 0}
+.pq p{font-family:'Playfair Display',serif;font-size:9px;font-style:italic;color:white;line-height:1.45}
+.pq .at{font-family:'DM Sans';font-style:normal;font-size:5.5px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+
+/* Data table */
+.dt{width:100%;border-collapse:collapse;font-size:6.5px;margin-top:6px}
+.dt thead th{background:var(--navy);color:white;padding:5px 4px;text-align:left;font-family:'Bebas Neue';font-size:7px;letter-spacing:1px}
+.dt thead th:first-child{border-radius:2px 0 0 0}.dt thead th:last-child{border-radius:0 2px 0 0}
+.dt tbody td{padding:3px 4px;border-bottom:1px solid var(--g200)}
+.dt tbody tr:nth-child(even){background:var(--g100)}
+.dt .hl{font-weight:700;color:var(--teal)}
+.dt tfoot td{background:var(--navy);color:white;padding:5px 4px;font-weight:700;font-size:6.5px}
+
+/* Feature table */
+.ft{width:100%}
+.ft tr{border-bottom:1px solid var(--g200)}
+.ft td{padding:3px 0;font-size:7px;vertical-align:top}
+.ft td:first-child{font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.3px;width:42%;padding-right:5px}
+.ft td:last-child{color:var(--g600)}
+
+/* Gallery grid */
+.p4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;position:absolute;top:26px;left:14px;right:14px;bottom:20px}
+.p4>div{border-radius:3px;overflow:hidden}
+
+/* Comp cards */
+.comps-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cc{border:1px solid var(--g200);border-radius:4px;overflow:hidden;display:flex;position:relative}
+
+/* Add / Delete controls — screen only */
+.screen-only{display:block}
+@media print{.screen-only{display:none!important}}
+.row-ctrl{display:flex;gap:8px;margin-top:7px}
+.btn-add{background:var(--teal);color:white;border:none;font-family:'Bebas Neue';font-size:9px;letter-spacing:1px;padding:5px 12px;cursor:pointer;border-radius:2px}
+.btn-add:hover{opacity:.85}
+.del-cell{width:14px;text-align:center;padding:0 2px!important}
+.del-cell button{background:none;border:none;color:var(--g400);font-size:11px;cursor:pointer;line-height:1;padding:0}
+.del-cell button:hover{color:#e53}
+@media print{.del-cell{display:none!important}}
+.del-comp-btn{position:absolute;top:5px;right:5px;width:18px;height:18px;background:rgba(220,50,50,.85);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;z-index:10}
+.cc:hover .del-comp-btn{display:flex}
+@media print{.del-comp-btn{display:none!important}}
+/* Cover hero upload button */
+.cover-upload-btn{position:absolute;top:50%;right:60px;transform:translateY(-50%);z-index:10;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.35);color:white;font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;padding:10px 18px;cursor:pointer;border-radius:2px;transition:background .15s}
+.cover-upload-btn:hover{background:rgba(0,180,216,.7)}
+@media print{.cover-upload-btn{display:none!important}}
+.cc .cph{width:38%;position:relative;overflow:hidden;padding:0}
+.cc .cph .bg{position:absolute;top:5px;right:5px;background:var(--teal);color:white;font-family:'Bebas Neue';font-size:7px;letter-spacing:2px;padding:2px 7px;border-radius:2px;z-index:2}
+.cc .cph .cn{position:absolute;top:5px;left:5px;background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:12px;font-weight:900;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
+.cc .cb{flex:1;padding:8px 10px}
+.cc .ca{font-family:'Playfair Display',serif;font-size:9px;font-weight:700;color:var(--navy);margin-bottom:4px;line-height:1.2}
+.cc .cg{display:grid;grid-template-columns:1fr 1fr;gap:1px 5px}
+.cc .cr{display:flex;justify-content:space-between;font-size:6px;padding:1.5px 0;border-bottom:1px solid var(--g100)}
+.cc .cr .cl{color:var(--g400);text-transform:uppercase;letter-spacing:.3px}
+.cc .cr .cv{font-weight:600;color:var(--g800)}
+
+/* Finance boxes */
+.f4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.fb{background:var(--g100);border-radius:4px;padding:8px;border-top:2px solid var(--teal)}
+.fb h4{font-family:'Bebas Neue';font-size:8px;letter-spacing:2px;color:var(--navy);margin-bottom:5px}
+.fr{display:flex;justify-content:space-between;padding:1.5px 0;font-size:6px;border-bottom:1px solid var(--g200)}
+.fr .fl{color:var(--g600)}.fr .fv{font-weight:700;color:var(--g800)}
+.fr.ac .fv{color:var(--teal);font-size:6.5px}
+
+/* Expense / financing */
+.e2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.e2 h4{font-family:'Bebas Neue';font-size:8px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px}
+.oir{display:flex;justify-content:space-between;padding:2px 0;font-size:7px;border-bottom:1px solid var(--g200)}
+.oir .ol{color:var(--g600)}.oir .ov{font-weight:700;color:var(--navy)}
+
+/* Back cover */
+.back{background:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
+.back::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 50px,rgba(255,255,255,.006) 50px,rgba(255,255,255,.006) 51px)}
+.back>div{position:relative;z-index:2}
+.back .icon{width:50px;height:50px;background:rgba(0,180,216,.1);border:1.5px solid rgba(0,180,216,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Bebas Neue';font-size:16px;color:var(--teal)}
+.back h2{font-family:'Bebas Neue';font-size:24px;color:white;letter-spacing:3px}.back h2 span{color:var(--teal)}
+.back .tag{font-family:'Playfair Display',serif;font-size:10px;font-style:italic;color:rgba(255,255,255,.35);margin:3px 0 16px}
+.back .dv{width:40px;height:2px;background:var(--teal);margin:0 auto 14px}
+.back .cb{margin-bottom:12px}
+.back .an{font-weight:700;font-size:10px;color:var(--teal);margin-bottom:1px}
+.back .ai{font-size:7px;color:rgba(255,255,255,.35);line-height:1.5}
+.back .ab{font-size:7px;color:rgba(255,255,255,.2);line-height:1.5;margin-top:18px}
+.back .lg{position:absolute;bottom:10px;left:16px;right:16px;font-size:4.5px;color:rgba(255,255,255,.1);text-align:center;line-height:1.4}
+
+@media print{.pg{margin:0;box-shadow:none}}
+</style>
+</head>
+<body>
+
+<!-- ==================== TOOLBAR ==================== -->
+<div id="toolbar">
+  <div class="tl-brand">TOP GUN <span>CRE</span> &nbsp;|&nbsp; OM Builder</div>
+  <div class="tl-hint">
+    <strong>Click any gray text field to edit &nbsp;&bull;&nbsp; Click any gray photo box to upload &nbsp;&bull;&nbsp; Ctrl+Z to undo</strong><br>
+    PDF export: Chrome → Print → <strong>Orientation: Landscape &nbsp;&bull;&nbsp; Margins: None &nbsp;&bull;&nbsp; Scale: Default</strong>
+  </div>
+  <div class="tl-actions">
+    <button id="btn-reset">Reset Page</button>
+    <button id="btn-pdf">DOWNLOAD PDF</button>
+  </div>
+</div>
+
+<!-- ==================== COVER ==================== -->
+<div class="pg cover">
+  <div class="hero" id="cover-hero"><div class="ph" style="background:var(--slate);border:none;color:rgba(255,255,255,.2)">HERO PROPERTY PHOTO</div></div>
+  <div class="ov"></div>
+  <div class="br">TOP GUN CRE</div>
+  <div class="om">OFFERING MEMORANDUM</div>
+  <button class="cover-upload-btn screen-only" id="cover-upload-btn">&#8679; Upload Cover Photo</button>
+  <div class="ct">
+    <div class="ol">EXCLUSIVELY PRESENTED</div>
+    <h1><span contenteditable="true" spellcheck="false">Neighborhood / Asset Type</span> <em><span contenteditable="true" spellcheck="false">Investment</span></em></h1>
+    <div class="ad" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</div>
+    <div class="sts">
+      <div class="st"><div class="v" contenteditable="true" spellcheck="false">$0,000,000</div><div class="l">Offering Price</div></div>
+      <div class="st"><div class="v" contenteditable="true" spellcheck="false">0 Units</div><div class="l">Total Units</div></div>
+      <div class="st"><div class="v" contenteditable="true" spellcheck="false">$000,000</div><div class="l">Price / Unit</div></div>
+      <div class="st"><div class="v" contenteditable="true" spellcheck="false">0.00%</div><div class="l">Stabilized Cap</div></div>
+      <div class="st"><div class="v" contenteditable="true" spellcheck="false">00%</div><div class="l">Income Upside</div></div>
+    </div>
+    <div class="bt">
+      <div class="b">TOP GUN CRE</div>
+      <div class="ags">
+        <div class="ag"><div class="n">KENNETH HERSKIND</div><div class="d">(858) 699-4013 &bull; DRE #01872460</div></div>
+        <div class="ag"><div class="n">BRADLEY BACZKOWSKI</div><div class="d">(858) 226-1994 &bull; DRE #02231722</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TABLE OF CONTENTS ==================== -->
+<div class="pg toc">
+  <div class="tl">
+    <h2>TABLE OF<br><span>CONTENTS</span></h2>
+    <div class="ti"><div class="num">01</div><div class="lbl">Executive Summary</div></div>
+    <div class="ti"><div class="num">02</div><div class="lbl">Investment Summary</div></div>
+    <div class="ti"><div class="num">03</div><div class="lbl">Market Summary</div></div>
+    <div class="ti"><div class="num">04</div><div class="lbl">Unit Mix &amp; Rent Roll</div></div>
+    <div class="ti"><div class="num">05</div><div class="lbl">Property Features</div></div>
+    <div class="ti"><div class="num">06</div><div class="lbl">Property Gallery</div></div>
+    <div class="ti"><div class="num">07</div><div class="lbl">Sales Comparables</div></div>
+    <div class="ti"><div class="num">08</div><div class="lbl">Financial Analysis</div></div>
+    <div class="ti"><div class="num">09</div><div class="lbl">Company Profile</div></div>
+  </div>
+  <div class="tr ph-zone"><div class="ph">TABLE OF CONTENTS PHOTO</div></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 01 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">01</div>
+    <div class="sc">
+      <div class="sec-label">SECTION ONE</div>
+      <div class="snum">01</div>
+      <div class="stt"><span class="w1">EXECUTIVE </span><span class="w2">SUMMARY</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">SECTION PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== EXECUTIVE SUMMARY ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Executive Summary</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">04</span>
+  </div>
+  <div class="cpg">
+    <div class="sec-label">OFFERING OVERVIEW</div>
+    <div class="sec-h">Executive Summary</div>
+    <div class="rule"></div>
+    <div class="eg3">
+      <div class="ec3">
+        <h3>Offering Summary</h3>
+        <div class="er"><span class="el">Address</span><span class="ev" contenteditable="true" spellcheck="false">Street Address, City ZIP</span></div>
+        <div class="er"><span class="el">County</span><span class="ev" contenteditable="true" spellcheck="false">County Name</span></div>
+        <div class="er"><span class="el">Market</span><span class="ev" contenteditable="true" spellcheck="false">Submarket / Neighborhood</span></div>
+        <div class="er"><span class="el">Asset Type</span><span class="ev" contenteditable="true" spellcheck="false">Multifamily Value-Add</span></div>
+        <div class="er"><span class="el">Building SF</span><span class="ev" contenteditable="true" spellcheck="false">0,000</span></div>
+        <div class="er"><span class="el">Year Built</span><span class="ev" contenteditable="true" spellcheck="false">YYYY</span></div>
+        <div class="er"><span class="el">Total Units</span><span class="ev" contenteditable="true" spellcheck="false">0</span></div>
+        <div class="er"><span class="el">Unit Mix</span><span class="ev" contenteditable="true" spellcheck="false">(#)bd/ba (#)bd/ba</span></div>
+        <div class="er"><span class="el">Parking</span><span class="ev" contenteditable="true" spellcheck="false">0 spaces / type</span></div>
+        <div class="er"><span class="el">Land SF</span><span class="ev" contenteditable="true" spellcheck="false">0,000</span></div>
+        <div class="er"><span class="el">APN</span><span class="ev" contenteditable="true" spellcheck="false">000-000-00-00</span></div>
+      </div>
+      <div class="ec3">
+        <h3>Financial Summary</h3>
+        <div class="er"><span class="el">Offering Price</span><span class="ev hi" contenteditable="true" spellcheck="false">$0,000,000</span></div>
+        <div class="er"><span class="el">Price PSF</span><span class="ev" contenteditable="true" spellcheck="false">$000</span></div>
+        <div class="er"><span class="el">Price Per Unit</span><span class="ev" contenteditable="true" spellcheck="false">$000,000</span></div>
+        <div class="er"><span class="el">NOI (Current)</span><span class="ev" contenteditable="true" spellcheck="false">$00,000</span></div>
+        <div class="er"><span class="el">NOI (Stabilized)</span><span class="ev hi" contenteditable="true" spellcheck="false">$000,000</span></div>
+        <div class="er"><span class="el">NOI (Market)</span><span class="ev" contenteditable="true" spellcheck="false">$000,000</span></div>
+        <div class="er"><span class="el">GRM (Current)</span><span class="ev" contenteditable="true" spellcheck="false">00.00</span></div>
+        <div class="er"><span class="el">GRM (Stabilized)</span><span class="ev" contenteditable="true" spellcheck="false">00.00</span></div>
+        <div class="er"><span class="el">Cap (Current)</span><span class="ev" contenteditable="true" spellcheck="false">0.00%</span></div>
+        <div class="er"><span class="el">Cap (Stabilized)</span><span class="ev hi" contenteditable="true" spellcheck="false">0.00%</span></div>
+        <div class="er"><span class="el">Cap (Market)</span><span class="ev" contenteditable="true" spellcheck="false">0.00%</span></div>
+      </div>
+      <div class="ec3">
+        <h3>Proposed Financing</h3>
+        <div class="er"><span class="el">Loan Type</span><span class="ev" contenteditable="true" spellcheck="false">New 1st Trust Deed</span></div>
+        <div class="er"><span class="el">Due In</span><span class="ev" contenteditable="true" spellcheck="false">5 Years</span></div>
+        <div class="er"><span class="el">Down Payment</span><span class="ev" contenteditable="true" spellcheck="false">$0,000,000 (00%)</span></div>
+        <div class="er"><span class="el">Annual Debt Svc</span><span class="ev" contenteditable="true" spellcheck="false">$00,000</span></div>
+        <div class="er"><span class="el">Monthly Debt Svc</span><span class="ev" contenteditable="true" spellcheck="false">$0,000</span></div>
+        <div class="er"><span class="el">Loan Amount</span><span class="ev" contenteditable="true" spellcheck="false">$000,000</span></div>
+        <div class="er"><span class="el">LTV</span><span class="ev" contenteditable="true" spellcheck="false">00%</span></div>
+        <div class="er"><span class="el">Interest Rate</span><span class="ev" contenteditable="true" spellcheck="false">0.00%</span></div>
+        <div class="er"><span class="el">Amortization</span><span class="ev" contenteditable="true" spellcheck="false">30 Years</span></div>
+        <div class="er"><span class="el">DCR</span><span class="ev hi" contenteditable="true" spellcheck="false">0.00</span></div>
+      </div>
+    </div>
+    <!-- 3 photos fill the remaining page space -->
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;min-height:0">
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">PROPERTY PHOTO 1</div></div>
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">PROPERTY PHOTO 2</div></div>
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">PROPERTY PHOTO 3</div></div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 02 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">02</div>
+    <div class="sc">
+      <div class="sec-label">SECTION TWO</div>
+      <div class="snum">02</div>
+      <div class="stt"><span class="w1">INVESTMENT </span><span class="w2">SUMMARY</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">SECTION PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== INVESTMENT SUMMARY ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Investment Summary</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">06</span>
+  </div>
+  <div class="cpg">
+    <div class="sec-label">INVESTMENT HIGHLIGHTS</div>
+    <div class="sec-h">Investment Summary</div>
+    <div class="rule"></div>
+    <div class="ts">
+      <div class="tb">
+        <p class="dc" contenteditable="true" spellcheck="false">Opening paragraph — introduce the property, brokerage name, address, asset type, location highlights, unit count, and key physical attributes. Start typing here to replace this placeholder text with your own description.</p>
+        <p contenteditable="true" spellcheck="false">Second paragraph — describe recent capital improvements, roof, exterior, landscaping, any recently completed renovations, or deferred maintenance items addressed. Click here to edit.</p>
+        <p contenteditable="true" spellcheck="false">Third paragraph — building details such as year built, unit types, parking spaces, utility metering, storage facilities. Click here to edit.</p>
+        <div class="pq">
+          <p contenteditable="true" spellcheck="false">Key investment thesis — one or two compelling sentences summarizing the value-add opportunity, upside percentage, ADU potential, or market positioning. Click to edit.</p>
+          <div class="at">Investment Thesis</div>
+        </div>
+        <p contenteditable="true" spellcheck="false">Fourth paragraph — second building details if applicable, shared amenities, laundry, storage. Tenant profile, lease structure, rent-to-market gap. Click here to edit.</p>
+      </div>
+      <div class="tsd">
+        <div class="ph-zone"><div class="ph">INTERIOR / EXTERIOR</div></div>
+        <div class="ph-zone"><div class="ph">INTERIOR / EXTERIOR</div></div>
+        <div class="ph-zone"><div class="ph">INTERIOR / EXTERIOR</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 03 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">03</div>
+    <div class="sc">
+      <div class="sec-label">SECTION THREE</div>
+      <div class="snum">03</div>
+      <div class="stt"><span class="w1">MARKET </span><span class="w2">SUMMARY</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">NEIGHBORHOOD PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== MARKET SUMMARY ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Market Summary</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">08</span>
+  </div>
+  <div class="cpg">
+    <div class="sec-label">NEIGHBORHOOD PROFILE</div>
+    <div class="sec-h">About <span contenteditable="true" spellcheck="false">Neighborhood / Submarket</span></div>
+    <div class="rule"></div>
+    <div class="ts">
+      <div class="tb">
+        <p class="dc" contenteditable="true" spellcheck="false">Opening paragraph — overview of the neighborhood: geography, boundaries, character, demand drivers. What makes this a desirable rental market? Describe location relative to major corridors or adjacent neighborhoods. Click to edit.</p>
+        <p contenteditable="true" spellcheck="false">Second paragraph — dining, retail, entertainment, walkability, street-level activity, nightlife, coffee shops, local businesses. Click to edit.</p>
+        <p contenteditable="true" spellcheck="false">Third paragraph — parks, culture, community events, local identity, what attracts renters to this neighborhood. Click to edit.</p>
+        <p contenteditable="true" spellcheck="false">Fourth paragraph — employment centers, transit access, freeway proximity, commute times to major job hubs. Click to edit.</p>
+        <p contenteditable="true" spellcheck="false">Fifth paragraph — schools, demographics, neighborhood trajectory, long-term appreciation story. Click to edit.</p>
+      </div>
+      <div class="tsd">
+        <div class="ph-zone"><div class="ph">NEIGHBORHOOD PHOTO</div></div>
+        <div class="ph-zone"><div class="ph">NEIGHBORHOOD PHOTO</div></div>
+        <div class="ph-zone"><div class="ph">NEIGHBORHOOD PHOTO</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 04 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">04</div>
+    <div class="sc">
+      <div class="sec-label">SECTION FOUR</div>
+      <div class="snum">04</div>
+      <div class="stt"><span class="w1">UNIT MIX &amp; </span><span class="w2">RENT ROLL</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">PROPERTY PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== RENT ROLL ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Unit Mix &amp; Rent Roll</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">10</span>
+  </div>
+  <div class="cpg">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;height:110px;margin-bottom:8px">
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">UNIT INTERIOR</div></div>
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">UNIT INTERIOR</div></div>
+    </div>
+    <div class="sec-label">INCOME ANALYSIS</div>
+    <div class="sec-h" style="font-size:16px">Rent Roll</div>
+    <table class="dt" id="rent-roll-table">
+      <thead><tr><th>Unit</th><th>Address</th><th>Type</th><th>SqFt</th><th>Current</th><th>$/SF</th><th>Stabilized</th><th>$/SF</th><th>Renovated</th><th>$/SF</th><th class="screen-only" style="width:14px"></th></tr></thead>
+      <tbody id="rent-roll-body">
+        <tr><td contenteditable="true">1</td><td contenteditable="true" spellcheck="false">Unit A</td><td contenteditable="true" spellcheck="false">bd/ba</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+        <tr><td contenteditable="true">2</td><td contenteditable="true" spellcheck="false">Unit B</td><td contenteditable="true" spellcheck="false">bd/ba</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+        <tr><td contenteditable="true">3</td><td contenteditable="true" spellcheck="false">Unit C</td><td contenteditable="true" spellcheck="false">bd/ba</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+        <tr><td contenteditable="true">4</td><td contenteditable="true" spellcheck="false">Unit D</td><td contenteditable="true" spellcheck="false">bd/ba</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+        <tr><td contenteditable="true">5</td><td contenteditable="true" spellcheck="false">Unit E</td><td contenteditable="true" spellcheck="false">bd/ba</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+        <tr><td contenteditable="true">6</td><td contenteditable="true" spellcheck="false">Unit F</td><td contenteditable="true" spellcheck="false">bd/ba</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$0,000</td><td contenteditable="true">$0.00</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+        <tr><td>—</td><td colspan="3">Parking / Other Income</td><td contenteditable="true">$000</td><td></td><td contenteditable="true">$000</td><td></td><td contenteditable="true">$000</td><td></td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="3">Totals</td><td contenteditable="true">0,000</td><td contenteditable="true">$00,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$00,000</td><td contenteditable="true">$0.00</td><td contenteditable="true">$00,000</td><td contenteditable="true">$0.00</td><td class="screen-only"></td></tr></tfoot>
+    </table>
+    <div class="row-ctrl screen-only">
+      <button class="btn-add" onclick="addRentRow()">+ Add Unit Row</button>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-top:8px">
+      <table class="dt">
+        <thead><tr><th>Type</th><th>#</th><th>Avg SF</th><th>Current</th><th>Stab.</th><th>Reno.</th></tr></thead>
+        <tbody>
+          <tr><td contenteditable="true" spellcheck="false">2bd/2ba</td><td contenteditable="true">0</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0,000</td></tr>
+          <tr><td contenteditable="true" spellcheck="false">2bd/1ba</td><td contenteditable="true">0</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0,000</td></tr>
+          <tr><td contenteditable="true" spellcheck="false">1bd/1ba</td><td contenteditable="true">0</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0,000</td></tr>
+          <tr><td contenteditable="true" spellcheck="false">Studio</td><td contenteditable="true">0</td><td contenteditable="true">000</td><td contenteditable="true">$0,000</td><td class="hl" contenteditable="true">$0,000</td><td contenteditable="true">$0,000</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td contenteditable="true">0</td><td contenteditable="true">0,000</td><td contenteditable="true">$00,000</td><td contenteditable="true">$00,000</td><td contenteditable="true">$00,000</td></tr></tfoot>
+      </table>
+      <div>
+        <div style="font-family:'Bebas Neue';font-size:8px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px">Other Income (Monthly)</div>
+        <div class="oir"><span class="ol">Laundry</span><span class="ov" contenteditable="true" spellcheck="false">$000</span></div>
+        <div class="oir"><span class="ol">Parking</span><span class="ov" contenteditable="true" spellcheck="false">$000</span></div>
+        <div class="oir"><span class="ol">Storage</span><span class="ov" contenteditable="true" spellcheck="false">$000</span></div>
+        <div class="oir" style="border-top:2px solid var(--navy);margin-top:3px;padding-top:3px;font-weight:700"><span class="ol">Total Monthly</span><span class="ov" contenteditable="true" spellcheck="false">$00,000</span></div>
+        <div class="oir" style="font-weight:700"><span class="ol">Total Yearly</span><span class="ov" style="color:var(--teal)" contenteditable="true" spellcheck="false">$000,000</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 05 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">05</div>
+    <div class="sc">
+      <div class="sec-label">SECTION FIVE</div>
+      <div class="snum">05</div>
+      <div class="stt"><span class="w1">PROPERTY </span><span class="w2">FEATURES</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">PROPERTY PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== PROPERTY FEATURES ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Property Features</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">12</span>
+  </div>
+  <div class="cpg">
+    <div class="sec-label">PROPERTY DETAILS</div>
+    <div class="sec-h">Property Features</div>
+    <div class="rule"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0">
+      <div style="overflow:auto">
+        <table class="ft">
+          <tr><td>Number of Units</td><td contenteditable="true" spellcheck="false">0</td></tr>
+          <tr><td>Building SF</td><td contenteditable="true" spellcheck="false">0,000</td></tr>
+          <tr><td>Unit Mix</td><td contenteditable="true" spellcheck="false">(0)bd/ba (0)bd/ba</td></tr>
+          <tr><td>Land SF</td><td contenteditable="true" spellcheck="false">0,000</td></tr>
+          <tr><td>Year Built</td><td contenteditable="true" spellcheck="false">YYYY</td></tr>
+          <tr><td>Zoning</td><td contenteditable="true" spellcheck="false">Zone Code</td></tr>
+          <tr><td>Zoning Overlay</td><td contenteditable="true" spellcheck="false">Overlay Name</td></tr>
+          <tr><td>Parking</td><td contenteditable="true" spellcheck="false">0 — (0) Carport (0) Garage</td></tr>
+          <tr><td>Asset Quality</td><td contenteditable="true" spellcheck="false">Value-Add</td></tr>
+          <tr><td>Total Investment</td><td contenteditable="true" spellcheck="false">($0,000,000)</td></tr>
+          <tr><td>Est. Future Value</td><td contenteditable="true" spellcheck="false">$0,000,000</td></tr>
+          <tr><td>1-Year IRR</td><td contenteditable="true" spellcheck="false">0%</td></tr>
+          <tr><td>3-Year IRR</td><td contenteditable="true" spellcheck="false">0%</td></tr>
+        </table>
+        <div style="height:8px"></div>
+        <table class="ft">
+          <tr><td colspan="2" style="font-family:'Bebas Neue';font-size:8px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px">Utilities</td></tr>
+          <tr><td>Water</td><td contenteditable="true" spellcheck="false">Landlord / Tenant</td></tr>
+          <tr><td>Electric / Gas</td><td contenteditable="true" spellcheck="false">Landlord / Tenant</td></tr>
+          <tr><td>Trash</td><td contenteditable="true" spellcheck="false">City / Landlord</td></tr>
+        </table>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="flex:1;border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">EXTERIOR PHOTO</div></div>
+        <div style="flex:1;border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">EXTERIOR PHOTO</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 06 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">06</div>
+    <div class="sc">
+      <div class="sec-label">SECTION SIX</div>
+      <div class="snum">06</div>
+      <div class="stt"><span class="w1">PROPERTY </span><span class="w2">GALLERY</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">PROPERTY PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== GALLERY 1 ==================== -->
+<div class="pg">
+  <div class="hdr"><span class="s">Property Gallery</span><span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span><span class="p">14</span></div>
+  <div class="p4">
+    <div class="ph-zone"><div class="ph">PHOTO 1</div></div>
+    <div class="ph-zone"><div class="ph">PHOTO 2</div></div>
+    <div class="ph-zone"><div class="ph">PHOTO 3</div></div>
+    <div class="ph-zone"><div class="ph">PHOTO 4</div></div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span>Property Gallery</span></div>
+</div>
+
+<!-- ==================== GALLERY 2 ==================== -->
+<div class="pg">
+  <div class="hdr"><span class="s">Property Gallery</span><span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span><span class="p">15</span></div>
+  <div class="p4">
+    <div class="ph-zone"><div class="ph">PHOTO 5</div></div>
+    <div class="ph-zone"><div class="ph">PHOTO 6</div></div>
+    <div class="ph-zone"><div class="ph">PHOTO 7</div></div>
+    <div class="ph-zone"><div class="ph">PHOTO 8</div></div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span>Property Gallery</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 07 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">07</div>
+    <div class="sc">
+      <div class="sec-label">SECTION SEVEN</div>
+      <div class="snum">07</div>
+      <div class="stt"><span class="w1">SALES </span><span class="w2">COMPARABLES</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">COMP AREA PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== SALES COMPARABLES ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Sales Comparables</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">17</span>
+  </div>
+  <div class="cpg">
+    <div class="sec-label">MARKET CONTEXT</div>
+    <div class="sec-h" style="font-size:16px">Sales Comparables</div>
+    <div class="rule"></div>
+    <div class="comps-grid" id="comps-grid"></div>
+    <div class="row-ctrl screen-only" style="margin-top:10px">
+      <button class="btn-add" id="btn-add-comp">+ Add Comp</button>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 08 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">08</div>
+    <div class="sc">
+      <div class="sec-label">SECTION EIGHT</div>
+      <div class="snum">08</div>
+      <div class="stt"><span class="w1">FINANCIAL </span><span class="w2">ANALYSIS</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">PROPERTY PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== FINANCIAL ANALYSIS ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Financial Analysis</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">19</span>
+  </div>
+  <div class="cpg">
+    <div class="sec-label">UNDERWRITING</div>
+    <div class="sec-h" style="font-size:16px">Financial Analysis</div>
+    <div class="rule"></div>
+    <div class="f4">
+      <div class="fb"><h4>Current Value</h4>
+        <div class="fr"><span class="fl">Price</span><span class="fv" contenteditable="true" spellcheck="false">$0,000,000</span></div>
+        <div class="fr"><span class="fl">$/Unit</span><span class="fv" contenteditable="true" spellcheck="false">$000,000</span></div>
+        <div class="fr"><span class="fl">$/SF</span><span class="fv" contenteditable="true" spellcheck="false">$000</span></div>
+        <div class="fr"><span class="fl">Avg Rent</span><span class="fv" contenteditable="true" spellcheck="false">$0,000</span></div>
+        <div class="fr ac"><span class="fl">Upside</span><span class="fv" contenteditable="true" spellcheck="false">00%</span></div>
+      </div>
+      <div class="fb"><h4>Building Stats</h4>
+        <div class="fr"><span class="fl">Built</span><span class="fv" contenteditable="true" spellcheck="false">YYYY</span></div>
+        <div class="fr"><span class="fl">Units</span><span class="fv" contenteditable="true" spellcheck="false">0</span></div>
+        <div class="fr"><span class="fl">Bldg SF</span><span class="fv" contenteditable="true" spellcheck="false">0,000</span></div>
+        <div class="fr"><span class="fl">Lot SF</span><span class="fv" contenteditable="true" spellcheck="false">0,000</span></div>
+        <div class="fr"><span class="fl">Zone</span><span class="fv" contenteditable="true" spellcheck="false">Zone</span></div>
+      </div>
+      <div class="fb"><h4>Stabilized</h4>
+        <div class="fr"><span class="fl">Investment</span><span class="fv" contenteditable="true" spellcheck="false">($0,000,000)</span></div>
+        <div class="fr"><span class="fl">Equity</span><span class="fv" contenteditable="true" spellcheck="false">$0,000,000</span></div>
+        <div class="fr ac"><span class="fl">1-Yr IRR</span><span class="fv" contenteditable="true" spellcheck="false">0%</span></div>
+        <div class="fr ac"><span class="fl">3-Yr IRR</span><span class="fv" contenteditable="true" spellcheck="false">0%</span></div>
+        <div class="fr"><span class="fl">GRM</span><span class="fv" contenteditable="true" spellcheck="false">00.00</span></div>
+      </div>
+      <div class="fb"><h4>Renovated</h4>
+        <div class="fr"><span class="fl">Est. Value</span><span class="fv" contenteditable="true" spellcheck="false">$0,000,000</span></div>
+        <div class="fr"><span class="fl">Reno/Unit</span><span class="fv" contenteditable="true" spellcheck="false">($00K)</span></div>
+        <div class="fr"><span class="fl">Investment</span><span class="fv" contenteditable="true" spellcheck="false">($0,000,000)</span></div>
+        <div class="fr"><span class="fl">Return</span><span class="fv" contenteditable="true" spellcheck="false">$000,000</span></div>
+        <div class="fr ac"><span class="fl">3-Yr IRR</span><span class="fv" contenteditable="true" spellcheck="false">0%</span></div>
+      </div>
+    </div>
+    <div style="font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">Annualized Operating Data &mdash; Levered</div>
+    <table class="dt">
+      <thead><tr><th></th><th>Current</th><th>%</th><th>Stabilized</th><th>%</th><th>Renovated</th><th>%</th></tr></thead>
+      <tbody>
+        <tr><td>Gross Rent</td><td contenteditable="true">$000,000</td><td></td><td contenteditable="true">$000,000</td><td></td><td contenteditable="true">$000,000</td><td></td></tr>
+        <tr><td>Vacancy</td><td contenteditable="true">($00,000)</td><td contenteditable="true">0%</td><td contenteditable="true">($00,000)</td><td contenteditable="true">0%</td><td contenteditable="true">($00,000)</td><td contenteditable="true">0%</td></tr>
+        <tr><td>Other Income</td><td contenteditable="true">$0,000</td><td></td><td contenteditable="true">$0,000</td><td></td><td contenteditable="true">$0,000</td><td></td></tr>
+        <tr><td>GOI</td><td contenteditable="true">$000,000</td><td></td><td contenteditable="true">$000,000</td><td></td><td contenteditable="true">$000,000</td><td></td></tr>
+        <tr><td>Expenses</td><td contenteditable="true">($00,000)</td><td contenteditable="true">00%</td><td contenteditable="true">($00,000)</td><td contenteditable="true">00%</td><td contenteditable="true">($00,000)</td><td contenteditable="true">00%</td></tr>
+        <tr><td style="font-weight:700">NOI</td><td style="font-weight:700" contenteditable="true">$00,000</td><td></td><td style="font-weight:700;color:var(--teal)" contenteditable="true">$000,000</td><td></td><td style="font-weight:700" contenteditable="true">$000,000</td><td></td></tr>
+        <tr><td>Debt Service</td><td contenteditable="true">($00,000)</td><td></td><td contenteditable="true">($00,000)</td><td></td><td contenteditable="true">($00,000)</td><td></td></tr>
+        <tr><td style="font-weight:700">Cash Flow</td><td style="font-weight:700" contenteditable="true">$00,000</td><td contenteditable="true">0.00%</td><td style="font-weight:700;color:var(--teal)" contenteditable="true">$00,000</td><td contenteditable="true">0.00%</td><td style="font-weight:700" contenteditable="true">$00,000</td><td contenteditable="true">0.00%</td></tr>
+        <tr><td>Principal Red.</td><td contenteditable="true">$00,000</td><td></td><td contenteditable="true">$00,000</td><td></td><td contenteditable="true">$00,000</td><td></td></tr>
+        <tr><td style="font-weight:700">Earned Return</td><td style="font-weight:700" contenteditable="true">$00,000</td><td contenteditable="true">0.00%</td><td style="font-weight:700" contenteditable="true">$00,000</td><td contenteditable="true">0.00%</td><td style="font-weight:700" contenteditable="true">$00,000</td><td contenteditable="true">0.00%</td></tr>
+        <tr><td>Appreciation*</td><td contenteditable="true">$00,000</td><td></td><td contenteditable="true">$00,000</td><td></td><td contenteditable="true">$00,000</td><td></td></tr>
+        <tr><td style="font-weight:700">Total Return</td><td style="font-weight:700" contenteditable="true">$000,000</td><td contenteditable="true">00.00%</td><td style="font-weight:700;color:var(--teal)" contenteditable="true">$000,000</td><td contenteditable="true">00.00%</td><td style="font-weight:700" contenteditable="true">$000,000</td><td contenteditable="true">00.00%</td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:5px;color:var(--g400);margin-top:2px">*Est. Yearly Appreciation: <span contenteditable="true" spellcheck="false">0.00%</span> (30-year CAGR from MLS)</div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== EXPENSES & FINANCING ==================== -->
+<div class="pg">
+  <div class="hdr">
+    <span class="s">Financial Analysis</span>
+    <span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span>
+    <span class="p">20</span>
+  </div>
+  <div class="cpg">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;height:120px;margin-bottom:8px">
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">PROPERTY PHOTO</div></div>
+      <div style="border-radius:3px;overflow:hidden" class="ph-zone"><div class="ph">PROPERTY PHOTO</div></div>
+    </div>
+    <div class="sec-label">OPERATING COSTS</div>
+    <div class="sec-h" style="font-size:16px">Expenses &amp; Proposed Financing</div>
+    <div class="rule"></div>
+    <div class="e2">
+      <div>
+        <h4>Expenses (Estimated)</h4>
+        <table class="dt">
+          <thead><tr><th>Tax: <span contenteditable="true" spellcheck="false">0.000%</span></th><th>Current</th><th>Stab.</th><th>Reno.</th></tr></thead>
+          <tbody>
+            <tr><td>Prop Tax</td><td contenteditable="true">($00,000)</td><td contenteditable="true">($00,000)</td><td contenteditable="true">($00,000)</td></tr>
+            <tr><td>Insurance</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td></tr>
+            <tr><td>Mgmt</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td></tr>
+            <tr><td>Water</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td></tr>
+            <tr><td>Repairs</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td></tr>
+            <tr><td>Reserves</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td></tr>
+          </tbody>
+          <tfoot><tr><td>Total</td><td contenteditable="true">($00,000)</td><td contenteditable="true">($00,000)</td><td contenteditable="true">($00,000)</td></tr></tfoot>
+        </table>
+        <div style="margin-top:3px">
+          <div class="oir"><span class="ol">Per Unit</span><span class="ov" contenteditable="true" spellcheck="false">($0,000)</span></div>
+          <div class="oir"><span class="ol">% Gross</span><span class="ov" contenteditable="true" spellcheck="false">00%/00%/00%</span></div>
+        </div>
+      </div>
+      <div>
+        <h4>Proposed Financing</h4>
+        <table class="dt">
+          <thead><tr><th></th><th>Current</th><th>Stab.</th><th>Reno.</th></tr></thead>
+          <tbody>
+            <tr><td>Down (<span contenteditable="true" spellcheck="false">00%</span>)</td><td contenteditable="true">($0.00M)</td><td contenteditable="true">($0.00M)</td><td contenteditable="true">($0.00M)</td></tr>
+            <tr><td>1st TD</td><td contenteditable="true">$000,000</td><td contenteditable="true">$000,000</td><td contenteditable="true">$000,000</td></tr>
+            <tr><td>Rate</td><td contenteditable="true">0.00%</td><td contenteditable="true">0.00%</td><td contenteditable="true">0.00%</td></tr>
+            <tr><td>Amort</td><td contenteditable="true">30</td><td contenteditable="true">30</td><td contenteditable="true">30</td></tr>
+            <tr><td>Due</td><td contenteditable="true">0 yr</td><td contenteditable="true">0 yr</td><td contenteditable="true">0 yr</td></tr>
+            <tr><td>Mo. DS</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td><td contenteditable="true">($0,000)</td></tr>
+            <tr><td style="font-weight:700">Ann. DS</td><td style="font-weight:700" contenteditable="true">($00,000)</td><td style="font-weight:700" contenteditable="true">($00,000)</td><td style="font-weight:700" contenteditable="true">($00,000)</td></tr>
+          </tbody>
+          <tfoot><tr><td>DCR</td><td contenteditable="true">0.00</td><td contenteditable="true">0.00</td><td contenteditable="true">0.00</td></tr></tfoot>
+        </table>
+        <div style="margin-top:3px"><div class="oir"><span class="ol">LTV</span><span class="ov" contenteditable="true" spellcheck="false">00%/00%/00%</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== SECTION DIVIDER 09 ==================== -->
+<div class="pg sdiv">
+  <div class="sl">
+    <div class="wm">09</div>
+    <div class="sc">
+      <div class="sec-label">SECTION NINE</div>
+      <div class="snum">09</div>
+      <div class="stt"><span class="w1">COMPANY </span><span class="w2">PROFILE</span></div>
+    </div>
+  </div>
+  <div class="sr ph-zone"><div class="ph">OFFICE / TEAM PHOTO</div><div class="dim"></div></div>
+</div>
+
+<!-- ==================== COMPANY PROFILE ==================== -->
+<div class="pg">
+  <div class="hdr"><span class="s">Company Profile</span><span class="a" contenteditable="true" spellcheck="false">Property Address, City, State ZIP</span><span class="p">22</span></div>
+  <div class="cpg">
+    <div class="sec-label">YOUR WINGMEN IN COMMERCIAL REAL ESTATE</div>
+    <div class="sec-h" style="font-size:16px">About Top Gun CRE</div>
+    <div class="rule"></div>
+    <div style="column-count:2;column-gap:18px;font-size:8px;line-height:1.65;color:var(--g800);margin-bottom:14px">
+      <p style="margin-bottom:6px;text-align:justify">Top Gun CRE is your premiere San Diego commercial real estate brokerage, providing the very top tier of representation through the perfect formation of a superior team, innovative technology, expertise, and a clients-first approach.</p>
+      <p style="margin-bottom:6px;text-align:justify">Created out of a desire to make the local commercial brokerage experience better, Top Gun CRE was founded in late 2017. We believe in being expert advisors to our clients by sharing information and distilling it down into actionable insights.</p>
+      <p style="margin-bottom:6px;text-align:justify">Collectively, we have over 3 decades of broad CRE experience including investment, property management, development, and brokerage. We broker apartments in San Diego County. Our simple but laser-guided focus means the highest level of service.</p>
+      <p style="margin-bottom:6px;text-align:justify">We offer expertise in all multifamily properties and capital markets within San Diego County. We are a boutique firm 100% focused on client success.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--g100);border-radius:4px;padding:12px;border-top:2px solid var(--teal);display:flex;gap:12px">
+        <div style="width:70px;height:85px;border-radius:3px;flex-shrink:0;overflow:hidden" class="ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--navy)">Kenneth Herskind</div>
+          <div style="font-size:6px;color:var(--teal);font-family:'Bebas Neue';letter-spacing:2px;margin:1px 0 4px">VP &amp; Principal Broker</div>
+          <div style="font-size:6.5px;color:var(--g600);line-height:1.5">(858) 699-4013 &bull; kenh@topguncre.com<br>DRE #01872460<br><br>20+ years multifamily investing &amp; brokerage. International business background. Fluent in Japanese.</div>
+        </div>
+      </div>
+      <div style="background:var(--g100);border-radius:4px;padding:12px;border-top:2px solid var(--teal);display:flex;gap:12px">
+        <div style="width:70px;height:85px;border-radius:3px;flex-shrink:0;overflow:hidden" class="ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--navy)">Bradley Baczkowski</div>
+          <div style="font-size:6px;color:var(--teal);font-family:'Bebas Neue';letter-spacing:2px;margin:1px 0 4px">Wingman</div>
+          <div style="font-size:6.5px;color:var(--g600);line-height:1.5">(858) 226-1994 &bull; bradleyb@topguncre.com<br>DRE #02231722<br><br>SDSU grad, BS Business Admin (RE). ULI &amp; NAIOP member. Deep SD submarket knowledge.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false">Property Address</span></div>
+</div>
+
+<!-- ==================== BACK COVER ==================== -->
+<div class="pg back">
+  <div>
+    <div class="icon">TG</div>
+    <h2>TOP GUN <span>CRE</span></h2>
+    <div class="tag">Your Wingmen in Commercial Real Estate</div>
+    <div class="dv"></div>
+    <div class="cb"><div class="an">Kenneth Herskind</div><div class="ai">(858) 699-4013 &bull; Kenh@topguncre.com &bull; DRE #01872460</div></div>
+    <div class="cb"><div class="an">Bradley Baczkowski</div><div class="ai">(858) 226-1994 &bull; Bradleyb@topguncre.com &bull; DRE #02231722</div></div>
+    <div class="ab">1550 Hotel Circle North #225, San Diego, CA 92108<br>(619) 550-4515 &bull; Topguncre.com &bull; DRE #02059064</div>
+  </div>
+  <div class="lg">The information contained herewith is proprietary and strictly confidential. It is intended to be reviewed only by the party receiving it from Top Gun CRE. This information has been prepared to provide summary, unverified information. Top Gun CRE makes no representation or warranty with respect to the future performance or soundness of said investment strategies. All potential buyers must take appropriate measures to verify all information. &copy; 2025 Top Gun CRE. All rights reserved.</div>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+(function() {
+
+  /* =====================================================
+     IMAGE UPLOAD — generic ph-zone click handler
+     ===================================================== */
+  function triggerUpload(container) {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    input.addEventListener('change', function() {
+      var file = input.files[0];
+      if (!file) { document.body.removeChild(input); return; }
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var img = document.createElement('img');
+        img.src = ev.target.result;
+        var ph = container.querySelector('.ph');
+        if (ph) ph.replaceWith(img);
+        else {
+          var existing = container.querySelector('img');
+          if (existing) existing.replaceWith(img);
+        }
+        container.classList.add('filled');
+        document.body.removeChild(input);
+      };
+      reader.readAsDataURL(file);
+    });
+    input.click();
+  }
+
+  function attachUpload(zone) {
+    zone.addEventListener('click', function(e) {
+      if (e.target.hasAttribute('contenteditable')) return;
+      if (e.target.classList.contains('del-comp-btn')) return;
+      triggerUpload(zone);
+    });
+  }
+
+  document.querySelectorAll('.ph-zone').forEach(attachUpload);
+
+  /* =====================================================
+     COVER HERO — dedicated upload button
+     ===================================================== */
+  var coverBtn = document.getElementById('cover-upload-btn');
+  var coverHero = document.getElementById('cover-hero');
+  if (coverBtn && coverHero) {
+    coverBtn.addEventListener('click', function() {
+      triggerUpload(coverHero);
+    });
+  }
+
+  /* =====================================================
+     RENT ROLL — add / delete rows
+     ===================================================== */
+  function makeRentRow(num) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td contenteditable="true">' + num + '</td>' +
+      '<td contenteditable="true" spellcheck="false">Unit</td>' +
+      '<td contenteditable="true" spellcheck="false">bd/ba</td>' +
+      '<td contenteditable="true">000</td>' +
+      '<td contenteditable="true">$0,000</td>' +
+      '<td contenteditable="true">$0.00</td>' +
+      '<td class="hl" contenteditable="true">$0,000</td>' +
+      '<td contenteditable="true">$0.00</td>' +
+      '<td contenteditable="true">$0,000</td>' +
+      '<td contenteditable="true">$0.00</td>' +
+      '<td class="del-cell screen-only"><button onclick="deleteRentRow(this)" title="Delete row">&times;</button></td>';
+    return tr;
+  }
+
+  window.addRentRow = function() {
+    var tbody = document.getElementById('rent-roll-body');
+    var rows = tbody.querySelectorAll('tr');
+    var num = rows.length + 1;
+    tbody.appendChild(makeRentRow(num));
+  };
+
+  window.deleteRentRow = function(btn) {
+    var row = btn.closest('tr');
+    if (row) row.remove();
+  };
+
+  /* =====================================================
+     COMPS — build initial 4 comps, add / delete
+     ===================================================== */
+  function makeCompCard(num) {
+    var div = document.createElement('div');
+    div.className = 'cc';
+    div.innerHTML =
+      '<button class="del-comp-btn screen-only" title="Remove comp">&times;</button>' +
+      '<div class="cph ph-zone">' +
+        '<div class="ph">COMP PHOTO</div>' +
+        '<div class="bg">SOLD</div>' +
+        '<div class="cn">' + num + '</div>' +
+      '</div>' +
+      '<div class="cb">' +
+        '<div class="ca" contenteditable="true" spellcheck="false">Comparable Address, City ZIP</div>' +
+        '<div class="cg">' +
+          '<div class="cr"><span class="cl">Price</span><span class="cv" contenteditable="true" spellcheck="false">$0,000,000</span></div>' +
+          '<div class="cr"><span class="cl">Date</span><span class="cv" contenteditable="true" spellcheck="false">MM/DD/YY</span></div>' +
+          '<div class="cr"><span class="cl">Units</span><span class="cv" contenteditable="true" spellcheck="false">0</span></div>' +
+          '<div class="cr"><span class="cl">$/Unit</span><span class="cv" contenteditable="true" spellcheck="false">$000,000</span></div>' +
+          '<div class="cr"><span class="cl">$/SF</span><span class="cv" contenteditable="true" spellcheck="false">$000</span></div>' +
+          '<div class="cr"><span class="cl">Cap</span><span class="cv" contenteditable="true" spellcheck="false">0.00%</span></div>' +
+          '<div class="cr"><span class="cl">GRM</span><span class="cv" contenteditable="true" spellcheck="false">00.00</span></div>' +
+          '<div class="cr"><span class="cl">Built</span><span class="cv" contenteditable="true" spellcheck="false">YYYY</span></div>' +
+        '</div>' +
+      '</div>';
+
+    // Wire up the photo upload zone
+    attachUpload(div.querySelector('.ph-zone'));
+
+    // Wire up the delete button
+    div.querySelector('.del-comp-btn').addEventListener('click', function() {
+      div.remove();
+      renumberComps();
+    });
+
+    return div;
+  }
+
+  function renumberComps() {
+    var grid = document.getElementById('comps-grid');
+    grid.querySelectorAll('.cc .cn').forEach(function(cn, i) {
+      cn.textContent = i + 1;
+    });
+  }
+
+  // Populate initial 4 comps
+  var compsGrid = document.getElementById('comps-grid');
+  if (compsGrid) {
+    for (var i = 1; i <= 4; i++) compsGrid.appendChild(makeCompCard(i));
+  }
+
+  document.getElementById('btn-add-comp').addEventListener('click', function() {
+    var grid = document.getElementById('comps-grid');
+    var num = grid.querySelectorAll('.cc').length + 1;
+    grid.appendChild(makeCompCard(num));
+  });
+
+  /* =====================================================
+     PREVENT ENTER IN SINGLE-LINE FIELDS
+     ===================================================== */
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var el = e.target;
+    if (el.getAttribute('contenteditable') !== 'true') return;
+    if (el.tagName.toLowerCase() === 'p') return;
+    e.preventDefault();
+  });
+
+  /* =====================================================
+     SELECT-ALL ON FOCUS (makes replacing placeholders faster)
+     ===================================================== */
+  document.addEventListener('focusin', function(e) {
+    var el = e.target;
+    if (el.getAttribute('contenteditable') !== 'true') return;
+    var text = el.textContent.trim();
+    if (text.length < 80 && !/\n/.test(text)) {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  });
+
+  /* =====================================================
+     TOOLBAR BUTTONS
+     ===================================================== */
+  document.getElementById('btn-pdf').addEventListener('click', function() {
+    window.print();
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', function() {
+    if (confirm('Reset all content back to the blank template? This cannot be undone.')) {
+      window.location.reload();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
