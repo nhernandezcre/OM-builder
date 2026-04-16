@@ -369,6 +369,15 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cover-stat-toggle:hover::after{content:'\21C5';position:absolute;top:2px;right:2px;font-size:10px;color:var(--teal);opacity:.7}
 @media print{.cover-stat-toggle::after{display:none!important}}
 
+/* ===== RENT ROLL MODE TOGGLE ===== */
+.rr-mode-toggle{display:flex;gap:0;margin-bottom:6px}
+.rr-mode-btn{font-family:'Bebas Neue';font-size:10px;letter-spacing:2px;padding:5px 16px;border:1px solid var(--g200);background:var(--g100);color:var(--g600);cursor:pointer}
+.rr-mode-btn:first-child{border-radius:2px 0 0 2px}.rr-mode-btn:last-child{border-radius:0 2px 2px 0;border-left:none}
+.rr-mode-btn.active{background:var(--teal);color:white;border-color:var(--teal)}
+@media print{.rr-mode-toggle{display:none!important}}
+.rr-occupancy{font-size:11px;color:var(--g600);margin-top:4px;font-weight:600}
+.rr-occupancy span{color:var(--teal);font-weight:700}
+
 /* ===== UNIT TYPE DROPDOWN ===== */
 #unit-type-popup{display:none;position:absolute;z-index:10001;background:var(--navy);border:1px solid rgba(0,180,216,.3);border-radius:4px;padding:4px 0;box-shadow:0 6px 20px rgba(0,0,0,.5);min-width:130px}
 #unit-type-popup.open{display:block}
@@ -722,7 +731,10 @@ img{display:block;width:100%;height:100%;object-fit:cover}
   <div class="cpg">
 
     <div class="sec-label">INCOME ANALYSIS</div>
-    <div class="sec-h" style="font-size:20px">Rent Roll</div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="sec-h" style="font-size:20px">Rent Roll</div>
+      <div class="rr-mode-toggle screen-only"><button id="rr-mode-detail" class="rr-mode-btn active">DETAIL</button><button id="rr-mode-summary" class="rr-mode-btn">SUMMARY</button></div>
+    </div>
     <table class="dt" id="rent-roll-table">
       <thead><tr><th>Unit</th><th>Address</th><th>Type</th><th>SqFt</th><th>Current</th><th>Proforma</th><th class="screen-only" style="width:16px"></th></tr></thead>
       <tbody id="rent-roll-body">
@@ -735,7 +747,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       </tbody>
       <tfoot><tr><td colspan="3">Totals</td><td data-out="total-sqft">—</td><td data-out="total-rent-cur">—</td><td data-out="total-rent-pro">—</td><td class="screen-only"></td></tr></tfoot>
     </table>
-    <div class="row-ctrl screen-only"><button class="btn-add" onclick="addRentRow()">+ Add Unit Row</button></div>
+    <div class="row-ctrl screen-only"><button class="btn-add" id="btn-add-rent-row" onclick="addRentRow()">+ Add Unit Row</button></div>
+    <div class="rr-occupancy" id="rr-occupancy" style="display:none">Occupancy: <span id="rr-occ-pct">—</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px">
       <div>
         <div style="font-family:'Bebas Neue';font-size:12px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px">Other Income (Monthly)</div>
@@ -2584,7 +2597,10 @@ function applyProfile(profile){
     var tbody=tr.closest('tbody');
     if(!tbody||tbody.id!=='rent-roll-body')return false;
     var cells=Array.from(tr.children);
-    return cells.indexOf(td)===2; // Type is the 3rd column (index 2)
+    var idx=cells.indexOf(td);
+    // Detail mode: Type is column 2; Summary mode: Unit Type is column 0
+    if(window._rrMode==='summary')return idx===0&&td.hasAttribute('data-rr-summary-type');
+    return idx===2;
   }
 
   document.addEventListener('click',function(e){
@@ -2716,6 +2732,352 @@ function applyProfile(profile){
   }
 
   function renumberComps(){document.querySelectorAll('#comps-grid .cc .cn').forEach(function(cn,i){cn.textContent=i+1;});}
+})();
+
+/* ================================================================
+   ROUND 3: SMARTER RENT ROLL — DUAL MODE
+   ================================================================ */
+(function(){
+  var rrMode='detail'; // 'detail' or 'summary'
+  window._rrMode=rrMode;
+
+  var detailBtn=document.getElementById('rr-mode-detail');
+  var summaryBtn=document.getElementById('rr-mode-summary');
+  var addBtn=document.getElementById('btn-add-rent-row');
+  var occLine=document.getElementById('rr-occupancy');
+  var occPct=document.getElementById('rr-occ-pct');
+
+  /* ---- Summary row helpers ---- */
+  function makeSummaryRow(type,units,occupied,avgSqft,avgCur,avgPro){
+    var tr=document.createElement('tr');
+    var totalCur=units*avgCur,totalPro=units*avgPro,totalSqft=units*avgSqft;
+    var vacant=units-occupied;
+    tr.innerHTML='<td contenteditable="true" spellcheck="false" data-rr-summary-type>'+type+'</td>'
+      +'<td contenteditable="true" data-rr-units>'+units+'</td>'
+      +'<td contenteditable="true" data-rr-occupied>'+occupied+'</td>'
+      +'<td data-rr-vacant>'+vacant+'</td>'
+      +'<td contenteditable="true" data-rr-avgsqft>'+Math.round(avgSqft).toLocaleString('en-US')+'</td>'
+      +'<td contenteditable="true" data-rent="cur">'+fmtCur(Math.round(avgCur))+'</td>'
+      +'<td contenteditable="true" data-rent="pro" class="hl">'+fmtCur(Math.round(avgPro))+'</td>'
+      +'<td data-rr-total-cur data-sqft>'+fmtCur(Math.round(totalCur))+'</td>'
+      +'<td data-rr-total-pro>'+fmtCur(Math.round(totalPro))+'</td>'
+      +'<td class="del-cell screen-only"><button onclick="deleteRentRow(this)">&times;</button></td>';
+    return tr;
+  }
+
+  function recalcSummaryRow(tr){
+    var unitsEl=tr.querySelector('[data-rr-units]');
+    var occEl=tr.querySelector('[data-rr-occupied]');
+    var vacEl=tr.querySelector('[data-rr-vacant]');
+    var avgSqftEl=tr.querySelector('[data-rr-avgsqft]');
+    var avgCurEl=tr.querySelector('[data-rent="cur"]');
+    var avgProEl=tr.querySelector('[data-rent="pro"]');
+    var totalCurEl=tr.querySelector('[data-rr-total-cur]');
+    var totalProEl=tr.querySelector('[data-rr-total-pro]');
+
+    var units=parseInt(String(unitsEl.textContent).replace(/[^0-9]/g,''))||0;
+    var occ=parseInt(String(occEl.textContent).replace(/[^0-9]/g,''))||0;
+    var avgSqft=parseCur(avgSqftEl.textContent);
+    var avgCur=parseCur(avgCurEl.textContent);
+    var avgPro=parseCur(avgProEl.textContent);
+
+    vacEl.textContent=Math.max(0,units-occ);
+    totalCurEl.textContent=fmtCur(Math.round(units*avgCur));
+    totalProEl.textContent=fmtCur(Math.round(units*avgPro));
+    // Store total sqft in data-sqft cell for recalc
+    totalCurEl.setAttribute('data-sqft','');
+    // We need sqft totals — reuse the data-sqft attribute on a dedicated element
+    // Actually put sqft total on the avgsqft cell via a custom approach
+  }
+
+  function recalcAllSummaryRows(){
+    if(rrMode!=='summary')return;
+    var tbody=document.getElementById('rent-roll-body');
+    var totalUnits=0,totalOcc=0,totalVac=0;
+    // First remove data-rent/data-sqft from individual cells, put on totals
+    tbody.querySelectorAll('tr').forEach(function(tr){
+      recalcSummaryRow(tr);
+      var u=parseInt(String(tr.querySelector('[data-rr-units]').textContent).replace(/[^0-9]/g,''))||0;
+      var o=parseInt(String(tr.querySelector('[data-rr-occupied]').textContent).replace(/[^0-9]/g,''))||0;
+      totalUnits+=u;
+      totalOcc+=o;
+    });
+    totalVac=totalUnits-totalOcc;
+
+    // Update occupancy line
+    if(totalUnits>0){
+      occLine.style.display='block';
+      occPct.textContent=Math.round((totalOcc/totalUnits)*100)+'%';
+    }else{
+      occLine.style.display='none';
+    }
+
+    // Sync total units to cover
+    var coverUnits=document.querySelector('[data-calc="units"]');
+    if(coverUnits&&totalUnits>0){
+      coverUnits.textContent=totalUnits+' Units';
+    }
+
+    recalc();
+  }
+
+  /* ---- Mode switching ---- */
+  function switchMode(newMode,preserve){
+    if(newMode===rrMode)return;
+    var tbody=document.getElementById('rent-roll-body');
+    var thead=document.querySelector('#rent-roll-table thead tr');
+    var tfoot=document.querySelector('#rent-roll-table tfoot tr');
+
+    if(newMode==='summary'){
+      // Convert detail → summary
+      var groups={};
+      if(preserve!==false){
+        tbody.querySelectorAll('tr').forEach(function(tr){
+          var cells=tr.querySelectorAll('td:not(.del-cell)');
+          var type=(cells[2]?cells[2].textContent.trim():'Other')||'Other';
+          if(!groups[type])groups[type]={units:0,sqft:0,curTotal:0,proTotal:0};
+          groups[type].units++;
+          groups[type].sqft+=parseCur(cells[3]?cells[3].textContent:'0');
+          groups[type].curTotal+=parseCur(cells[4]?cells[4].textContent:'0');
+          groups[type].proTotal+=parseCur(cells[5]?cells[5].textContent:'0');
+        });
+      }
+      // Set summary thead
+      thead.innerHTML='<th>Unit Type</th><th># Units</th><th>Occupied</th><th>Vacant</th><th>Avg SqFt</th><th>Avg Current</th><th>Avg Proforma</th><th>Total Current</th><th>Total Proforma</th><th class="screen-only" style="width:16px"></th>';
+      // Set summary tfoot
+      tfoot.innerHTML='<td>Totals</td><td data-out="rr-total-units">—</td><td data-out="rr-total-occ">—</td><td data-out="rr-total-vac">—</td><td></td><td></td><td></td><td data-out="total-rent-cur">—</td><td data-out="total-rent-pro">—</td><td class="screen-only"></td>';
+      // Populate summary rows
+      tbody.innerHTML='';
+      var keys=Object.keys(groups);
+      if(keys.length>0){
+        keys.forEach(function(type){
+          var g=groups[type];
+          var avgCur=g.units>0?g.curTotal/g.units:0;
+          var avgPro=g.units>0?g.proTotal/g.units:0;
+          var avgSqft=g.units>0?g.sqft/g.units:0;
+          tbody.appendChild(makeSummaryRow(type,g.units,g.units,avgSqft,avgCur,avgPro));
+        });
+      }else{
+        tbody.appendChild(makeSummaryRow('1bd/1ba',0,0,0,0,0));
+      }
+      addBtn.textContent='+ Add Unit Type';
+      addBtn.onclick=function(){addSummaryRow();};
+      occLine.style.display='block';
+    }else{
+      // Convert summary → detail
+      thead.innerHTML='<th>Unit</th><th>Address</th><th>Type</th><th>SqFt</th><th>Current</th><th>Proforma</th><th class="screen-only" style="width:16px"></th>';
+      tfoot.innerHTML='<tr><td colspan="3">Totals</td><td data-out="total-sqft">—</td><td data-out="total-rent-cur">—</td><td data-out="total-rent-pro">—</td><td class="screen-only"></td></tr>';
+      // Try to expand summary rows back to detail
+      var rows=[];
+      if(preserve!==false){
+        tbody.querySelectorAll('tr').forEach(function(tr){
+          var type=tr.querySelector('[data-rr-summary-type]');
+          var unitsEl=tr.querySelector('[data-rr-units]');
+          var avgCurEl=tr.querySelector('[data-rent="cur"]');
+          var avgProEl=tr.querySelector('[data-rent="pro"]');
+          var avgSqftEl=tr.querySelector('[data-rr-avgsqft]');
+          var t=type?type.textContent.trim():'bd/ba';
+          var u=unitsEl?parseInt(String(unitsEl.textContent).replace(/[^0-9]/g,''))||1:1;
+          var ac=avgCurEl?parseCur(avgCurEl.textContent):0;
+          var ap=avgProEl?parseCur(avgProEl.textContent):0;
+          var asf=avgSqftEl?parseCur(avgSqftEl.textContent):0;
+          for(var i=0;i<u;i++){
+            rows.push({type:t,sqft:Math.round(asf),cur:Math.round(ac),pro:Math.round(ap)});
+          }
+        });
+      }
+      tbody.innerHTML='';
+      if(rows.length===0)rows=[{type:'bd/ba',sqft:0,cur:0,pro:0},{type:'bd/ba',sqft:0,cur:0,pro:0},{type:'bd/ba',sqft:0,cur:0,pro:0},{type:'bd/ba',sqft:0,cur:0,pro:0},{type:'bd/ba',sqft:0,cur:0,pro:0},{type:'bd/ba',sqft:0,cur:0,pro:0}];
+      rows.forEach(function(r,i){
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td contenteditable="true">'+(i+1)+'</td><td contenteditable="true" spellcheck="false">Unit</td><td contenteditable="true" spellcheck="false">'+r.type+'</td><td contenteditable="true" data-sqft>'+(r.sqft||'000')+'</td><td contenteditable="true" data-rent="cur">'+(r.cur>0?fmtCur(r.cur):'$0,000')+'</td><td contenteditable="true" data-rent="pro" class="hl">'+(r.pro>0?fmtCur(r.pro):'$0,000')+'</td><td class="del-cell screen-only"><button onclick="deleteRentRow(this)">&times;</button></td>';
+        tbody.appendChild(tr);
+      });
+      addBtn.textContent='+ Add Unit Row';
+      addBtn.onclick=function(){addRentRow();};
+      occLine.style.display='none';
+    }
+
+    rrMode=newMode;
+    window._rrMode=newMode;
+    detailBtn.classList.toggle('active',newMode==='detail');
+    summaryBtn.classList.toggle('active',newMode==='summary');
+
+    if(newMode==='summary'){
+      recalcAllSummaryRows();
+    }else{
+      recalc();
+    }
+    autoSave();
+  }
+
+  function addSummaryRow(){
+    var tbody=document.getElementById('rent-roll-body');
+    tbody.appendChild(makeSummaryRow('1bd/1ba',0,0,0,0,0));
+    recalcAllSummaryRows();
+  }
+  window._addSummaryRow=addSummaryRow;
+
+  /* ---- Toggle buttons ---- */
+  detailBtn.addEventListener('click',function(){switchMode('detail');});
+  summaryBtn.addEventListener('click',function(){switchMode('summary');});
+
+  /* ---- Auto-switch on row count ---- */
+  var origAddRent=window.addRentRow;
+  window.addRentRow=function(){
+    origAddRent();
+    if(rrMode==='detail'){
+      var count=document.querySelectorAll('#rent-roll-body tr').length;
+      if(count>=16){
+        switchMode('summary');
+        showToast('Switched to Summary view \u2014 easier to read for larger properties.');
+      }
+    }
+  };
+
+  var origDeleteRent=window.deleteRentRow;
+  window.deleteRentRow=function(btn){
+    origDeleteRent(btn);
+    if(rrMode==='summary'){
+      var count=document.querySelectorAll('#rent-roll-body tr').length;
+      if(count<=2){
+        switchMode('detail');
+        showToast('Switched back to Detail view.');
+      }
+    }
+  };
+
+  /* ---- Summary row input listener ---- */
+  document.addEventListener('input',function(e){
+    if(rrMode!=='summary')return;
+    var el=e.target;
+    var tr=el.closest('tr');
+    if(!tr||!tr.closest('#rent-roll-body'))return;
+    if(el.hasAttribute('data-rr-units')||el.hasAttribute('data-rr-occupied')||el.hasAttribute('data-rr-avgsqft')||el.hasAttribute('data-rent')){
+      recalcAllSummaryRows();
+    }
+  });
+
+  /* ---- Summary tfoot update (called from recalcAllSummaryRows) ---- */
+  var origRecalcAll=recalcAllSummaryRows;
+  recalcAllSummaryRows=function(){
+    if(rrMode!=='summary')return;
+    var tbody=document.getElementById('rent-roll-body');
+    var totalUnits=0,totalOcc=0,totalCur=0,totalPro=0,totalSqft=0;
+
+    // Remove stale data-rent attrs from avg cells, ensure totals have them
+    tbody.querySelectorAll('tr').forEach(function(tr){
+      recalcSummaryRow(tr);
+      var u=parseInt(String(tr.querySelector('[data-rr-units]').textContent).replace(/[^0-9]/g,''))||0;
+      var o=parseInt(String(tr.querySelector('[data-rr-occupied]').textContent).replace(/[^0-9]/g,''))||0;
+      totalUnits+=u;totalOcc+=o;
+      totalCur+=parseCur(tr.querySelector('[data-rr-total-cur]').textContent);
+      totalPro+=parseCur(tr.querySelector('[data-rr-total-pro]').textContent);
+      var asf=parseCur(tr.querySelector('[data-rr-avgsqft]').textContent);
+      totalSqft+=u*asf;
+    });
+
+    // Now we need recalc() to pick up the correct totals.
+    // The issue: data-rent="cur" is on the AVG cells (editable), not the total cells.
+    // We need totals to feed recalc. Solution: temporarily tag total cells with data-rent
+    // Actually, let's just remove data-rent from avg cells and put on total cells
+    tbody.querySelectorAll('[data-rent]').forEach(function(el){el.removeAttribute('data-rent');});
+    tbody.querySelectorAll('[data-sqft]').forEach(function(el){el.removeAttribute('data-sqft');});
+    tbody.querySelectorAll('tr').forEach(function(tr){
+      var avgCurEl=tr.children[5]; // avg current
+      var avgProEl=tr.children[6]; // avg proforma
+      var totalCurEl=tr.querySelector('[data-rr-total-cur]');
+      var totalProEl=tr.querySelector('[data-rr-total-pro]');
+      // Tag totals for recalc
+      if(totalCurEl)totalCurEl.setAttribute('data-rent','cur');
+      if(totalProEl)totalProEl.setAttribute('data-rent','pro');
+    });
+
+    // Update tfoot
+    var setOut=_om.setOut;
+    setOut('rr-total-units',totalUnits>0?String(totalUnits):'—');
+    setOut('rr-total-occ',totalOcc>0?String(totalOcc):'—');
+    setOut('rr-total-vac',totalUnits>0?String(totalUnits-totalOcc):'—');
+
+    // Occupancy
+    if(totalUnits>0){
+      occLine.style.display='block';
+      occPct.textContent=Math.round((totalOcc/totalUnits)*100)+'%';
+    }else{
+      occLine.style.display='none';
+    }
+
+    // Sync total units to cover
+    var coverUnits=document.querySelector('[data-calc="units"]');
+    if(coverUnits&&totalUnits>0){
+      coverUnits.textContent=totalUnits+' Units';
+      coverUnits.classList.remove('is-placeholder');
+    }
+
+    recalc();
+  };
+
+  /* ---- Save/restore ---- */
+  var origCapture3=captureState;
+  captureState=function(){
+    var state=origCapture3();
+    state.rrMode=rrMode;
+    if(rrMode==='summary'){
+      state.summaryRows=[];
+      document.querySelectorAll('#rent-roll-body tr').forEach(function(tr){
+        var cells=[];
+        tr.querySelectorAll('td:not(.del-cell)').forEach(function(td){cells.push(td.textContent);});
+        state.summaryRows.push(cells);
+      });
+    }
+    return state;
+  };
+  var origRestore3=restoreState;
+  restoreState=function(state){
+    // First restore as detail (default)
+    origRestore3(state);
+    // Then switch to summary if needed
+    if(state.rrMode==='summary'){
+      var thead=document.querySelector('#rent-roll-table thead tr');
+      var tfoot=document.querySelector('#rent-roll-table tfoot tr');
+      var tbody=document.getElementById('rent-roll-body');
+      thead.innerHTML='<th>Unit Type</th><th># Units</th><th>Occupied</th><th>Vacant</th><th>Avg SqFt</th><th>Avg Current</th><th>Avg Proforma</th><th>Total Current</th><th>Total Proforma</th><th class="screen-only" style="width:16px"></th>';
+      tfoot.innerHTML='<td>Totals</td><td data-out="rr-total-units">—</td><td data-out="rr-total-occ">—</td><td data-out="rr-total-vac">—</td><td></td><td></td><td></td><td data-out="total-rent-cur">—</td><td data-out="total-rent-pro">—</td><td class="screen-only"></td>';
+      tbody.innerHTML='';
+      if(state.summaryRows){
+        state.summaryRows.forEach(function(cells){
+          var tr=document.createElement('tr');
+          var attrs=['data-rr-summary-type','data-rr-units','data-rr-occupied','data-rr-vacant','data-rr-avgsqft','data-rent="cur"','data-rent="pro" class="hl"','data-rr-total-cur','data-rr-total-pro'];
+          cells.forEach(function(c,i){
+            var td=document.createElement('td');
+            if(i<=2||i===4||i===5||i===6)td.contentEditable='true';
+            if(i===0){td.setAttribute('data-rr-summary-type','');td.spellcheck=false;}
+            if(i===1)td.setAttribute('data-rr-units','');
+            if(i===2)td.setAttribute('data-rr-occupied','');
+            if(i===3)td.setAttribute('data-rr-vacant','');
+            if(i===4)td.setAttribute('data-rr-avgsqft','');
+            if(i===5)td.setAttribute('data-rent','cur');
+            if(i===6){td.setAttribute('data-rent','pro');td.className='hl';}
+            if(i===7)td.setAttribute('data-rr-total-cur','');
+            if(i===8)td.setAttribute('data-rr-total-pro','');
+            td.textContent=c;
+            tr.appendChild(td);
+          });
+          var dc=document.createElement('td');dc.className='del-cell screen-only';
+          dc.innerHTML='<button onclick="deleteRentRow(this)">&times;</button>';
+          tr.appendChild(dc);
+          tbody.appendChild(tr);
+        });
+      }
+      rrMode='summary';
+      window._rrMode='summary';
+      detailBtn.classList.remove('active');
+      summaryBtn.classList.add('active');
+      addBtn.textContent='+ Add Unit Type';
+      addBtn.onclick=function(){addSummaryRow();};
+      recalcAllSummaryRows();
+    }
+  };
 })();
 
 /* ================================================================
