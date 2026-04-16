@@ -19,10 +19,10 @@ body{background:#888;font-family:'DM Sans',sans-serif;color:var(--g800);-webkit-
 @media print{body{background:none;padding-top:0}}
 
 /* ===== TOOLBAR ===== */
-#toolbar{position:fixed;top:0;left:0;right:0;height:58px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+#toolbar{position:fixed;top:0;left:0;right:0;height:58px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 22px;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.4);overflow:visible}
 #toolbar .tl-brand{font-family:'Bebas Neue';font-size:15px;letter-spacing:3px;color:white;display:flex;align-items:center;gap:8px}
 #toolbar .tl-brand span{color:var(--teal)}
-#toolbar .tl-brand .brand-logo{height:32px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:inline-block}
+#toolbar .tl-brand .brand-logo{height:48px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:inline-block}
 #toolbar .tl-hint{font-size:11px;color:rgba(255,255,255,.45);text-align:center;line-height:1.5}
 #toolbar .tl-hint strong{color:rgba(255,255,255,.75)}
 #toolbar .tl-actions{display:flex;gap:10px;align-items:center}
@@ -161,13 +161,16 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .map-page .amenity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .map-page .amenity-cell{border-radius:3px;overflow:hidden;position:relative;display:flex;flex-direction:column}
 .map-page .amenity-cell .amenity-num{position:absolute;top:4px;left:4px;background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:10px;font-weight:900;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
-.map-page .amenity-cell .amenity-photo{height:70px;overflow:hidden;position:relative}
-.map-page .amenity-cell .amenity-label{font-size:8px;font-weight:600;color:var(--navy);text-align:center;padding:2px 2px;line-height:1.2;background:var(--g100)}
+.map-page .amenity-cell .amenity-photo{height:90px;overflow:hidden;position:relative}
+.map-page .amenity-cell .amenity-label{font-size:9px;font-weight:600;color:var(--navy);text-align:center;padding:3px 2px;line-height:1.2;background:var(--g100)}
 .map-page .comp-list{display:flex;flex-direction:column;gap:4px}
-.map-page .comp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--g200)}
-.map-page .comp-num{background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:10px;font-weight:900;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
-.map-page .comp-thumb{width:50px;height:36px;border-radius:3px;overflow:hidden;flex-shrink:0;position:relative}
-.map-page .comp-addr{font-size:9px;color:var(--g800);flex:1;line-height:1.3}
+.map-page .comp-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--g200)}
+.map-page .comp-num{background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:11px;font-weight:900;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
+.map-page .comp-thumb{width:60px;height:44px;border-radius:3px;overflow:hidden;flex-shrink:0;position:relative}
+.map-page .comp-addr{font-size:10px;color:var(--g800);flex:1;line-height:1.3}
+.map-page .del-amenity,.map-page .del-comp-row{background:none;border:none;color:var(--g400);font-size:14px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+.map-page .del-amenity:hover,.map-page .del-comp-row:hover{color:#e53}
+@media print{.map-page .del-amenity,.map-page .del-comp-row,.map-page .row-ctrl{display:none!important}}
 
 /* ===== CONTENT PAGES ===== */
 .cpg{padding:34px 28px 26px;height:calc(8.5in - 54px);box-sizing:border-box;display:flex;flex-direction:column}
@@ -349,9 +352,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 @media print{#btn-photos,#btn-profile,#btn-load,#btn-undo,#jump-select,.toolbar-overflow{display:none!important}}
 
 /* ===== PAGE VISIBILITY TOGGLE ===== */
-.pg-toggle{position:absolute;top:8px;right:8px;z-index:20;width:26px;height:26px;background:rgba(0,0,0,.4);border:none;border-radius:50%;color:rgba(255,255,255,.6);font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
+.pg-toggle{position:absolute;top:10px;right:10px;z-index:20;width:36px;height:36px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);border-radius:50%;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
 .pg:hover .pg-toggle{display:flex}
-.pg-toggle:hover{background:rgba(0,180,216,.7);color:white}
+.pg-toggle:hover{background:rgba(0,180,216,.7);color:white;border-color:var(--teal)}
 .pg.pg-hidden{opacity:.25;pointer-events:none;position:relative}
 .pg.pg-hidden .pg-toggle{pointer-events:auto;display:flex;opacity:1}
 .pg.pg-hidden::after{content:'HIDDEN FROM PDF';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue';font-size:14px;letter-spacing:3px;color:var(--teal);z-index:25;pointer-events:none}
@@ -452,18 +455,31 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <div id="help-modal">
   <div class="hm-box">
     <div class="hm-title">HELP &amp; INSTRUCTIONS</div>
-    <h4>Editing</h4>
-    <p>Click any text field to edit it. Fields with placeholder text will auto-clear when you click in.</p>
-    <p>Use the floating bar (A- A+ L C R J) above focused fields to adjust font size and alignment.</p>
-    <h4>Photos</h4>
-    <p>Open the photo tray from the overflow menu, then drag and drop photos onto any placeholder. You can also click any placeholder directly to upload a single image.</p>
-    <p>Hover over placed images for zoom and position controls. The cover photo auto-applies to all section divider backgrounds.</p>
+    <h4>Getting Started</h4>
+    <p>Click any text field to start editing. Placeholder text clears automatically when you click in, and returns if you leave the field empty. Use Tab to move between fields in logical order.</p>
+    <p>Set up your broker profile first (Menu &rarr; My Profile). Your name, contact info, and headshot will auto-fill into the cover, company profile, and back cover for every OM you create.</p>
+    <h4>Text Formatting</h4>
+    <p>Click any editable field to see the floating format bar: <strong>A-</strong> / <strong>A+</strong> to adjust font size, <strong>L C R J</strong> for left, center, right, or justify alignment.</p>
+    <p>For the Investment Summary and Market Summary, paste your full write-up into the text block. These are single-field paste targets, not individual paragraphs.</p>
+    <h4>Photos &amp; Drag-and-Drop</h4>
+    <p>Open the photo tray (Menu &rarr; Photos), then click <strong>+ Add Photos</strong> to bulk-upload images. Drag any thumbnail from the tray onto a placeholder on the page. A preview follows your cursor and the target highlights in teal.</p>
+    <p>You can also click any placeholder directly to upload a single image from your computer.</p>
+    <p>Once placed, hover over an image for controls: <strong>Zoom</strong> (+/-) and <strong>Position</strong> arrows to pan. Zoom out to see the full uncropped image. The cover photo automatically applies as a darkened background on all section divider pages.</p>
+    <h4>Rent Roll</h4>
+    <p>Click the <strong>Type</strong> column to select from a preset list (Studio, 1bd/1ba, etc.) or choose Custom to type your own. Use <strong>+ Add Unit Row</strong> to add rows. Hover any row to see the delete button (&times;).</p>
+    <p>All financial fields auto-format on blur: type "1500" and it becomes "$1,500". Rents, expenses, and other income all feed into the auto-calculation engine.</p>
+    <h4>Sales Comparables</h4>
+    <p>Comp cards auto-calculate <strong>$/Unit</strong>, <strong>$/SF</strong>, and <strong>GRM</strong> when you enter Price, Units, Bldg SF, and GSR. Double-click the Date field to open a date picker. Use <strong>+ Add Comp</strong> for more cards.</p>
+    <h4>Maps</h4>
+    <p>The Aerial Map and Comp Map pages have placeholder zones for map screenshots. Take a screenshot from Google Maps (or any map tool) and drag it in from the photo tray. Add or remove amenity/comp entries with the +/&times; buttons.</p>
     <h4>Page Visibility</h4>
-    <p>Hover over any content page to see the eye icon in the top-right corner. Click it to hide that page from the PDF export. Hidden pages appear dimmed. Click again to unhide.</p>
+    <p>Not every deal needs every page. Hover any content page to see the <strong>eye icon</strong> in the top-right. Click to hide it from the PDF. Hidden pages appear dimmed on screen but won't print. Click again to restore.</p>
     <h4>Exporting to PDF</h4>
-    <p>Click DOWNLOAD PDF, then in Chrome's print dialog set: <strong>Landscape &bull; Margins: None &bull; Background graphics: On</strong>. Save as PDF.</p>
-    <h4>Auto-Save</h4>
-    <p>Your work auto-saves every 2 seconds. Use Load Last Save from the menu to restore. Reset clears the deal but keeps your broker profile.</p>
+    <p>Click <strong>Download PDF</strong>. In Chrome's print dialog, set:</p>
+    <p><strong>Landscape &bull; Margins: None &bull; Background graphics: On</strong></p>
+    <p>Then click "Save as PDF". Hidden pages will not appear in the export.</p>
+    <h4>Saving &amp; Loading</h4>
+    <p>Your work auto-saves every 2 seconds to your browser. If you close and reopen, click <strong>Load Last Save</strong> from the menu. <strong>Reset</strong> clears the deal content but keeps your broker profile. Use <strong>Undo</strong> to roll back to a snapshot taken every 30 seconds (up to 10 steps).</p>
     <button class="hm-close" id="help-close">CLOSE</button>
   </div>
 </div>
@@ -672,7 +688,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
     </div>
     <div class="map-content aerial">
       <div style="display:flex;flex-direction:column;gap:6px;overflow:auto">
-        <div class="amenity-grid">
+        <div class="amenity-grid" id="amenity-grid">
           <div class="amenity-cell"><div class="amenity-num">1</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
           <div class="amenity-cell"><div class="amenity-num">2</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
           <div class="amenity-cell"><div class="amenity-num">3</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
@@ -680,14 +696,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
           <div class="amenity-cell"><div class="amenity-num">5</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
           <div class="amenity-cell"><div class="amenity-num">6</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
         </div>
-        <div class="amenity-grid">
-          <div class="amenity-cell"><div class="amenity-num">7</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
-          <div class="amenity-cell"><div class="amenity-num">8</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
-          <div class="amenity-cell"><div class="amenity-num">9</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
-          <div class="amenity-cell"><div class="amenity-num">10</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
-          <div class="amenity-cell"><div class="amenity-num">11</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
-          <div class="amenity-cell"><div class="amenity-num">12</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
-        </div>
+        <div class="row-ctrl screen-only"><button class="btn-add" id="btn-add-amenity">+ Add Amenity</button></div>
       </div>
       <div class="map-zone ph-zone"><div class="ph">AERIAL MAP — Screenshot from Google Maps</div></div>
     </div>
@@ -853,11 +862,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
           <div class="comp-row"><div class="comp-num">2</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 2 Address</div></div>
           <div class="comp-row"><div class="comp-num">3</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 3 Address</div></div>
           <div class="comp-row"><div class="comp-num">4</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 4 Address</div></div>
-          <div class="comp-row"><div class="comp-num">5</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 5 Address</div></div>
-          <div class="comp-row"><div class="comp-num">6</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 6 Address</div></div>
-          <div class="comp-row"><div class="comp-num">7</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 7 Address</div></div>
-          <div class="comp-row"><div class="comp-num">8</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 8 Address</div></div>
         </div>
+        <div class="row-ctrl screen-only"><button class="btn-add" id="btn-add-comp-map">+ Add Comp</button></div>
       </div>
       <div class="map-zone ph-zone"><div class="ph">COMP MAP — Screenshot from Google Maps</div></div>
     </div>
@@ -1086,8 +1092,12 @@ document.addEventListener('input',function(e){
   var syncKey=el.getAttribute('data-sync');
   if(!syncKey)return;
   var val=el.textContent;
+  var isReal=!el.classList.contains('is-placeholder');
   document.querySelectorAll('[data-sync="'+syncKey+'"]').forEach(function(other){
-    if(other!==el)other.textContent=val;
+    if(other!==el){
+      other.textContent=val;
+      if(isReal){other.classList.remove('is-placeholder');other.style.fontStyle='';}
+    }
   });
 });
 document.querySelectorAll('[data-sync]').forEach(function(el){
@@ -2241,6 +2251,11 @@ document.addEventListener('focusout',function(e){
     if(!isNaN(n)&&n>0)el.textContent=n+' Units';
     return;
   }
+  if(calcType==='bsf'){
+    var n=parseInt(text.replace(/[^0-9]/g,''));
+    if(!isNaN(n)&&n>0)el.textContent=n.toLocaleString('en-US');
+    return;
+  }
 
   // Currency fields
   if(el.hasAttribute('data-calc')||el.hasAttribute('data-rent')||el.hasAttribute('data-exp')||el.hasAttribute('data-other')){
@@ -2695,6 +2710,52 @@ function applyProfile(profile){
   }
 
   function renumberComps(){document.querySelectorAll('#comps-grid .cc .cn').forEach(function(cn,i){cn.textContent=i+1;});}
+})();
+
+/* ================================================================
+   ROUND 2: AMENITY & COMP MAP ADD/DELETE
+   ================================================================ */
+(function(){
+  function makeAmenityCell(num){
+    var cell=document.createElement('div');cell.className='amenity-cell';
+    cell.innerHTML='<div class="amenity-num">'+num+'</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div>';
+    attachUpload(cell.querySelector('.ph-zone'));
+    return cell;
+  }
+  function renumberAmenities(){
+    document.querySelectorAll('#amenity-grid .amenity-num').forEach(function(n,i){n.textContent=i+1;});
+  }
+  var addAmenBtn=document.getElementById('btn-add-amenity');
+  if(addAmenBtn){
+    addAmenBtn.addEventListener('click',function(){
+      var grid=document.getElementById('amenity-grid');
+      var num=grid.querySelectorAll('.amenity-cell').length+1;
+      grid.appendChild(makeAmenityCell(num));
+    });
+  }
+
+  function makeCompMapRow(num){
+    var row=document.createElement('div');row.className='comp-row';
+    row.innerHTML='<div class="comp-num">'+num+'</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp '+num+' Address</div><button class="del-comp-row screen-only" title="Remove">&times;</button>';
+    attachUpload(row.querySelector('.ph-zone'));
+    row.querySelector('.del-comp-row').addEventListener('click',function(){row.remove();renumberCompMap();});
+    return row;
+  }
+  function renumberCompMap(){
+    var rows=document.querySelectorAll('#comp-map-list .comp-row');
+    rows.forEach(function(r,i){
+      if(i===0)return; // skip Subject row
+      r.querySelector('.comp-num').textContent=i;
+    });
+  }
+  var addCompMapBtn=document.getElementById('btn-add-comp-map');
+  if(addCompMapBtn){
+    addCompMapBtn.addEventListener('click',function(){
+      var list=document.getElementById('comp-map-list');
+      var num=list.querySelectorAll('.comp-row').length; // includes subject, so this gives correct comp#
+      list.appendChild(makeCompMapRow(num));
+    });
+  }
 })();
 
 /* ================================================================
