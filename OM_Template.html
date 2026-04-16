@@ -161,13 +161,13 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .map-page .amenity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .map-page .amenity-cell{border-radius:3px;overflow:hidden;position:relative;display:flex;flex-direction:column}
 .map-page .amenity-cell .amenity-num{position:absolute;top:4px;left:4px;background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:10px;font-weight:900;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
-.map-page .amenity-cell .amenity-photo{height:90px;overflow:hidden;position:relative}
+.map-page .amenity-cell .amenity-photo{height:105px;overflow:hidden;position:relative}
 .map-page .amenity-cell .amenity-label{font-size:9px;font-weight:600;color:var(--navy);text-align:center;padding:3px 2px;line-height:1.2;background:var(--g100)}
 .map-page .comp-list{display:flex;flex-direction:column;gap:4px}
-.map-page .comp-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--g200)}
-.map-page .comp-num{background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:11px;font-weight:900;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
-.map-page .comp-thumb{width:60px;height:44px;border-radius:3px;overflow:hidden;flex-shrink:0;position:relative}
-.map-page .comp-addr{font-size:10px;color:var(--g800);flex:1;line-height:1.3}
+.map-page .comp-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g200)}
+.map-page .comp-num{background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:12px;font-weight:900;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
+.map-page .comp-thumb{width:90px;height:65px;border-radius:3px;overflow:hidden;flex-shrink:0;position:relative}
+.map-page .comp-addr{font-size:11px;color:var(--g800);flex:1;line-height:1.3}
 .map-page .del-amenity,.map-page .del-comp-row{background:none;border:none;color:var(--g400);font-size:14px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 .map-page .del-amenity:hover,.map-page .del-comp-row:hover{color:#e53}
 @media print{.map-page .del-amenity,.map-page .del-comp-row,.map-page .row-ctrl{display:none!important}}
@@ -361,7 +361,13 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 @media print{.pg-toggle{display:none!important}.pg.pg-hidden{display:none!important}}
 
 /* ===== SMART PLACEHOLDERS ===== */
-[data-placeholder].is-placeholder{color:var(--g400)!important;font-style:italic}
+[data-placeholder].is-placeholder{color:#cc4444!important;font-style:italic}
+@media print{[data-placeholder].is-placeholder{color:var(--g400)!important}}
+
+/* ===== COVER STAT TOGGLE ===== */
+.cover-stat-toggle{position:relative;cursor:pointer}
+.cover-stat-toggle:hover::after{content:'\21C5';position:absolute;top:2px;right:2px;font-size:10px;color:var(--teal);opacity:.7}
+@media print{.cover-stat-toggle::after{display:none!important}}
 
 /* ===== UNIT TYPE DROPDOWN ===== */
 #unit-type-popup{display:none;position:absolute;z-index:10001;background:var(--navy);border:1px solid rgba(0,180,216,.3);border-radius:4px;padding:4px 0;box-shadow:0 6px 20px rgba(0,0,0,.5);min-width:130px}
@@ -541,8 +547,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       <div class="st"><div class="v" contenteditable="true" spellcheck="false" data-calc="price">$0,000,000</div><div class="l">Offering Price</div></div>
       <div class="st"><div class="v" contenteditable="true" spellcheck="false" data-calc="units">0 Units</div><div class="l">Total Units</div></div>
       <div class="st"><div class="v" data-out="price-per-unit">—</div><div class="l">Price / Unit</div></div>
-      <div class="st"><div class="v" data-out="cap-pro">—</div><div class="l">Proforma Cap</div></div>
-      <div class="st"><div class="v" data-out="upside">—</div><div class="l">Income Upside</div></div>
+      <div class="st cover-stat-toggle" id="cover-stat-4"><div class="v" data-out="cap-pro">—</div><div class="l">Proforma Cap</div></div>
+      <div class="st cover-stat-toggle" id="cover-stat-5"><div class="v" data-out="upside">—</div><div class="l">Income Upside</div></div>
     </div>
     <div class="bt">
       
@@ -617,7 +623,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
         <div class="er"><span class="el">Down Payment</span><span class="ev" data-out="down-display">—</span></div>
         <div class="er"><span class="el">Annual Debt Svc</span><span class="ev" data-out="annual-ds">—</span></div>
         <div class="er"><span class="el">Monthly Debt Svc</span><span class="ev" data-out="monthly-ds">—</span></div>
-        <div class="er"><span class="el">Loan Amount</span><span class="ev" contenteditable="true" spellcheck="false" data-calc="loan">$0</span></div>
+        <div class="er"><span class="el">Loan Amount <button class="btn-dcr-calc screen-only" id="btn-dcr-calc" title="Auto-calculate loan for 1.2x DCR" style="background:none;border:1px solid var(--teal);color:var(--teal);font-family:'Bebas Neue';font-size:7px;letter-spacing:1px;padding:1px 5px;cursor:pointer;border-radius:2px;margin-left:4px;vertical-align:middle">1.2 DCR</button></span><span class="ev" contenteditable="true" spellcheck="false" data-calc="loan">$0</span></div>
         <div class="er"><span class="el">LTV</span><span class="ev" data-out="ltv">—</span></div>
         <div class="er"><span class="el">Interest Rate</span><span class="ev" contenteditable="true" spellcheck="false" data-calc="rate">6.00%</span></div>
         <div class="er"><span class="el">Amortization</span><span class="ev" contenteditable="true" spellcheck="false" data-calc="amort">30 Years</span></div>
@@ -2710,6 +2716,108 @@ function applyProfile(profile){
   }
 
   function renumberComps(){document.querySelectorAll('#comps-grid .cc .cn').forEach(function(cn,i){cn.textContent=i+1;});}
+})();
+
+/* ================================================================
+   ROUND 2: AUTO-CALC LOAN FOR 1.2x DCR
+   ================================================================ */
+(function(){
+  var btn=document.getElementById('btn-dcr-calc');
+  if(!btn)return;
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    // Read current proforma NOI from the calc engine outputs
+    var rateEl=document.querySelector('[data-calc="rate"]');
+    var amortEl=document.querySelector('[data-calc="amort"]');
+    var rate=rateEl?parseFloat(String(rateEl.textContent).replace(/[^0-9.]/g,''))||0:0;
+    var amort=amortEl?parseInt(String(amortEl.textContent).replace(/[^0-9]/g,''))||30:30;
+
+    // Calculate proforma NOI from rents and expenses
+    var totalProM=0;
+    document.querySelectorAll('[data-rent="pro"]').forEach(function(el){totalProM+=parseCur(el.textContent);});
+    var otherM=0;
+    document.querySelectorAll('[data-other]').forEach(function(el){otherM+=parseCur(el.textContent);});
+    var vacEl=document.querySelector('[data-calc="vacancy"]');
+    var vacRate=vacEl?parseFloat(String(vacEl.textContent).replace(/[^0-9.]/g,''))||3:3;
+    var annPro=totalProM*12;
+    var vacPro=annPro*(vacRate/100);
+    var goiPro=annPro+(otherM*12)-vacPro;
+    var expPro=0;
+    document.querySelectorAll('[data-exp="pro"]').forEach(function(el){expPro+=Math.abs(parseCur(el.textContent));});
+    var noiPro=goiPro-expPro;
+
+    if(noiPro<=0){showToast('Enter rents and expenses first so NOI can be calculated.');return;}
+    if(rate<=0){showToast('Enter an interest rate first.');return;}
+
+    // Target: DCR = NOI / Annual DS = 1.2
+    var targetAnnualDS=noiPro/1.2;
+    var monthlyDS=targetAnnualDS/12;
+    // Back-calc loan: monthlyDS = loan * (mr*(1+mr)^np) / ((1+mr)^np - 1)
+    var mr=rate/100/12;
+    var np=amort*12;
+    var factor=(mr*Math.pow(1+mr,np))/(Math.pow(1+mr,np)-1);
+    var loan=Math.round(monthlyDS/factor);
+
+    var loanEl=document.querySelector('[data-calc="loan"]');
+    if(loanEl){
+      loanEl.textContent=fmtCur(loan);
+      loanEl.classList.remove('is-placeholder');
+      loanEl.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    showToast('Loan set to '+fmtCur(loan)+' for 1.2x DCR');
+  });
+})();
+
+/* ================================================================
+   ROUND 2: COVER STAT TOGGLE (Proforma vs Current)
+   ================================================================ */
+(function(){
+  var mode='proforma'; // 'proforma' or 'current'
+  var stat4=document.getElementById('cover-stat-4');
+  var stat5=document.getElementById('cover-stat-5');
+  if(!stat4||!stat5)return;
+
+  function applyMode(){
+    if(mode==='proforma'){
+      stat4.querySelector('.v').setAttribute('data-out','cap-pro');
+      stat4.querySelector('.l').textContent='Proforma Cap';
+      stat5.querySelector('.v').setAttribute('data-out','upside');
+      stat5.querySelector('.l').textContent='Income Upside';
+    }else{
+      stat4.querySelector('.v').setAttribute('data-out','cap-cur');
+      stat4.querySelector('.l').textContent='Current Cap';
+      stat5.querySelector('.v').setAttribute('data-out','grm-cur');
+      stat5.querySelector('.l').textContent='Current GRM';
+    }
+    recalc();
+  }
+
+  stat4.addEventListener('click',function(){
+    mode=mode==='proforma'?'current':'proforma';
+    applyMode();
+    autoSave();
+  });
+  stat5.addEventListener('click',function(){
+    mode=mode==='proforma'?'current':'proforma';
+    applyMode();
+    autoSave();
+  });
+
+  // Save/restore mode
+  var origCapture2=captureState;
+  captureState=function(){
+    var state=origCapture2();
+    state.coverStatMode=mode;
+    return state;
+  };
+  var origRestore2=restoreState;
+  restoreState=function(state){
+    origRestore2(state);
+    if(state.coverStatMode){
+      mode=state.coverStatMode;
+      applyMode();
+    }
+  };
 })();
 
 /* ================================================================
