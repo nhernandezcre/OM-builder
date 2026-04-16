@@ -94,8 +94,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .ftr .ftr-logo{height:12px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:none}
 
 /* Utility */
-.sec-label{font-family:'Bebas Neue';font-size:11px;letter-spacing:4px;color:var(--teal)}
-.sec-h{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--navy);margin-bottom:2px}
+.sec-label{font-family:'Bebas Neue';font-size:11px;letter-spacing:4px;color:var(--teal);display:none}
+.sdiv .sec-label{display:block}
+.sec-h{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--teal);margin-bottom:2px}
 .rule{width:40px;height:2px;background:var(--teal);margin:5px 0 10px}
 
 /* ===== COVER — lighter overlay ===== */
@@ -110,9 +111,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cover .br .br-text{font-family:'Bebas Neue';font-size:12px;letter-spacing:3px;color:white}
 .cover .br .cover-logo{height:100px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:inline-block}
 .cover .ol{font-family:'Bebas Neue';font-size:11px;letter-spacing:5px;color:var(--teal);margin-bottom:5px}
-.cover h1{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:white;line-height:1.02;margin-bottom:3px;max-width:62%}
+.cover h1{font-family:'Playfair Display',serif;font-size:44px;font-weight:900;color:white;line-height:1.02;margin-bottom:3px;max-width:62%}
 .cover h1 em{font-style:italic;color:var(--teal)}
-.cover .ad{font-size:16px;color:rgba(255,255,255,.6);font-weight:300;margin-bottom:14px}
+.cover .ad{font-size:19px;color:rgba(255,255,255,.6);font-weight:300;margin-bottom:14px}
 .cover .sts{display:flex;gap:0;max-width:620px;margin-bottom:14px}
 .cover .st{flex:1;text-align:center;padding:10px 5px;border-right:1px solid rgba(255,255,255,.07)}
 .cover .st:last-child{border:none}
@@ -121,8 +122,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cover .bt{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);max-width:620px}
 .cover .bt .b{font-family:'Bebas Neue';font-size:13px;letter-spacing:3px;color:var(--teal)}
 .cover .bt .ags{display:flex;gap:16px}
-.cover .bt .ag .n{font-size:11px;font-weight:700;color:white}
-.cover .bt .ag .d{font-size:9px;color:var(--g400)}
+.cover .bt .ag .n{font-size:14px;font-weight:700;color:white}
+.cover .bt .ag .d{font-size:11px;color:var(--g400)}
 
 /* ===== TOC ===== */
 .toc{display:flex}
@@ -177,7 +178,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* 3-col exec grid — bigger fonts */
 .eg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.ec3 h3{font-family:'Bebas Neue';font-size:13px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:3px;margin-bottom:5px}
+.ec3 h3{font-family:'Bebas Neue';font-size:15px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:3px;margin-bottom:5px}
 .er{display:flex;justify-content:space-between;padding:4.5px 0;border-bottom:1px solid var(--g200);font-size:11.5px}
 .er .el{color:var(--g600);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
 .er .ev{font-weight:700;color:var(--navy)}
@@ -241,7 +242,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .fr.ac .fv{color:var(--teal);font-size:11.5px}
 
 /* Expense / financing — BIGGER */
-.e2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.e2{display:grid;grid-template-columns:1fr;gap:16px}
 .e2 h4{font-family:'Bebas Neue';font-size:12px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:5px}
 .oir{display:flex;justify-content:space-between;padding:4px 0;font-size:11.5px;border-bottom:1px solid var(--g200)}
 .oir .ol{color:var(--g600)}.oir .ov{font-weight:700;color:var(--navy)}
@@ -270,8 +271,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .back .tag{font-family:'Playfair Display',serif;font-size:13px;font-style:italic;color:rgba(255,255,255,.35);margin:3px 0 16px}
 .back .dv{width:40px;height:2px;background:var(--teal);margin:0 auto 14px}
 .back .cb-x{margin-bottom:12px}
-.back .an{font-weight:700;font-size:14px;color:var(--teal);margin-bottom:2px}
-.back .ai{font-size:10px;color:rgba(255,255,255,.4);line-height:1.5}
+.back .an{font-weight:700;font-size:16px;color:var(--teal);margin-bottom:2px}
+.back .ai{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5}
 .back .ab{font-size:10px;color:rgba(255,255,255,.25);line-height:1.5;margin-top:18px}
 .back .lg{position:absolute;bottom:10px;left:16px;right:16px;font-size:5px;color:rgba(255,255,255,.1);text-align:center;line-height:1.4}
 
@@ -362,7 +363,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* ===== SMART PLACEHOLDERS ===== */
 [data-placeholder].is-placeholder{color:#cc4444!important;font-style:italic}
-@media print{[data-placeholder].is-placeholder{color:var(--g400)!important}}
+@media print{[data-placeholder].is-placeholder{visibility:hidden!important}}
 
 /* ===== COVER STAT TOGGLE ===== */
 .cover-stat-toggle{position:relative;cursor:pointer}
@@ -380,6 +381,11 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* ===== UNIT TYPE DROPDOWN ===== */
 #unit-type-popup{display:none;position:absolute;z-index:10001;background:var(--navy);border:1px solid rgba(0,180,216,.3);border-radius:4px;padding:4px 0;box-shadow:0 6px 20px rgba(0,0,0,.5);min-width:130px}
+#loan-type-popup{display:none;position:absolute;z-index:10001;background:var(--navy);border:1px solid rgba(0,180,216,.3);border-radius:4px;padding:4px 0;box-shadow:0 6px 20px rgba(0,0,0,.5);min-width:150px}
+#loan-type-popup.open{display:block}
+#loan-type-popup .utp-item{display:block;width:100%;padding:6px 14px;font-family:'Bebas Neue';font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.7);background:none;border:none;text-align:left;cursor:pointer}
+#loan-type-popup .utp-item:hover{background:rgba(0,180,216,.3);color:white}
+@media print{#loan-type-popup{display:none!important}}
 #unit-type-popup.open{display:block}
 #unit-type-popup .utp-item{display:block;width:100%;padding:6px 14px;font-family:'Bebas Neue';font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.7);background:none;border:none;text-align:left;cursor:pointer}
 #unit-type-popup .utp-item:hover{background:rgba(0,180,216,.3);color:white}
@@ -465,6 +471,14 @@ img{display:block;width:100%;height:100%;object-fit:cover}
   <button class="utp-item" data-val="Commercial">COMMERCIAL</button>
   <button class="utp-item" data-val="Other">OTHER</button>
   <div class="utp-divider"></div>
+  <button class="utp-item" data-val="">CUSTOM...</button>
+</div>
+<div id="loan-type-popup">
+  <button class="utp-item" data-val="Conventional">CONVENTIONAL</button>
+  <button class="utp-item" data-val="Seller Financing">SELLER FINANCING</button>
+  <button class="utp-item" data-val="Bridge">BRIDGE</button>
+  <button class="utp-item" data-val="Construction">CONSTRUCTION</button>
+  <button class="utp-item" data-val="Cash">CASH (NO LOAN)</button>
   <button class="utp-item" data-val="">CUSTOM...</button>
 </div>
 <div id="help-modal">
@@ -627,7 +641,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       </div>
       <div class="ec3">
         <h3>Proposed Financing</h3>
-        <div class="er"><span class="el">Loan Type</span><span class="ev" contenteditable="true" spellcheck="false">New 1st Trust Deed</span></div>
+        <div class="er"><span class="el">Loan Type</span><span class="ev" contenteditable="true" spellcheck="false" id="loan-type-field">New 1st Trust Deed</span></div>
         <div class="er"><span class="el">Due In</span><span class="ev" contenteditable="true" spellcheck="false" data-calc="term">5 Years</span></div>
         <div class="er"><span class="el">Down Payment</span><span class="ev" data-out="down-display">—</span></div>
         <div class="er"><span class="el">Annual Debt Svc</span><span class="ev" data-out="annual-ds">—</span></div>
@@ -698,7 +712,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       <div class="map-icon">AERIAL MAP</div>
       <div>
         <div class="sec-label">LOCATION OVERVIEW</div>
-        <div class="sec-h" style="font-size:20px">Amenities Near Location</div>
+        <div class="sec-h" style="font-size:20px" contenteditable="true" spellcheck="false">Amenities Near Location</div>
       </div>
     </div>
     <div class="map-content aerial">
@@ -911,14 +925,14 @@ img{display:block;width:100%;height:100%;object-fit:cover}
         <div class="fr"><span class="fl">Units</span><span class="fv" data-out="units-display2">—</span></div>
         <div class="fr"><span class="fl">Bldg SF</span><span class="fv" data-out="bsf-display">—</span></div>
       </div>
-      <div class="fb"><h4>Current Performance</h4>
+      <div class="fb"><h4>Current</h4>
         <div class="fr"><span class="fl">Avg Rent</span><span class="fv" data-out="avg-rent-cur">—</span></div>
         <div class="fr"><span class="fl">NOI</span><span class="fv" data-out="noi-cur2">—</span></div>
         <div class="fr ac"><span class="fl">Cap Rate</span><span class="fv" data-out="cap-cur3">—</span></div>
         <div class="fr ac"><span class="fl">GRM</span><span class="fv" data-out="grm-cur2">—</span></div>
         <div class="fr"><span class="fl">Cash Flow</span><span class="fv" data-out="cf-cur">—</span></div>
       </div>
-      <div class="fb"><h4>Proforma Projection</h4>
+      <div class="fb"><h4>Proforma</h4>
         <div class="fr"><span class="fl">Avg Rent</span><span class="fv" data-out="avg-rent-pro">—</span></div>
         <div class="fr"><span class="fl">NOI</span><span class="fv" data-out="noi-pro2" style="color:var(--teal)">—</span></div>
         <div class="fr ac"><span class="fl">Cap Rate</span><span class="fv" data-out="cap-pro3">—</span></div>
@@ -955,7 +969,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       <div style="border-radius:3px;overflow:hidden;position:relative" class="ph-zone"><div class="ph">PROPERTY PHOTO</div></div>
     </div>
     <div class="sec-label">OPERATING COSTS</div>
-    <div class="sec-h" style="font-size:20px">Expenses &amp; Proposed Financing</div>
+    <div class="sec-h" style="font-size:20px">Expenses &amp; Cost Analysis</div>
     <div class="rule"></div>
     <div class="e2">
       <div>
@@ -977,26 +991,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
           <div class="oir"><span class="ol">Per Unit (Current)</span><span class="ov" data-out="exp-per-unit">—</span></div>
         </div>
       </div>
-      <div>
-        <h4>Proposed Financing</h4>
-        <table class="dt">
-          <thead><tr><th style="width:40%"></th><th>Details</th></tr></thead>
-          <tbody>
-            <tr><td>Loan Amount</td><td data-out="loan-display">—</td></tr>
-            <tr><td>Interest Rate</td><td data-out="rate-display">—</td></tr>
-            <tr><td>Amortization</td><td data-out="amort-display">—</td></tr>
-            <tr><td>LTV</td><td data-out="ltv2">—</td></tr>
-            <tr><td>Monthly DS</td><td data-out="monthly-ds2">—</td></tr>
-            <tr><td style="font-weight:700">Annual DS</td><td style="font-weight:700" data-out="annual-ds2">—</td></tr>
-          </tbody>
-          <tfoot><tr><td>DCR (Proforma)</td><td data-out="dcr2">—</td></tr></tfoot>
-        </table>
-        <div style="margin-top:10px">
-          <div class="oir"><span class="ol">Down Payment</span><span class="ov" data-out="down-display2">—</span></div>
-          <div class="oir"><span class="ol">Equity Required</span><span class="ov" data-out="equity">—</span></div>
-          <div class="oir"><span class="ol">Cash-on-Cash (Proforma)</span><span class="ov" style="color:var(--teal)" data-out="coc-pro">—</span></div>
-        </div>
-      </div>
+
     </div>
   </div>
   <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false" data-sync="address">Property Address</span></div>
@@ -2644,6 +2639,115 @@ function applyProfile(profile){
       activeCell=null;
     }
   });
+})();
+
+/* ================================================================
+   LOAN TYPE POPUP + CASH LOGIC
+   ================================================================ */
+(function(){
+  var popup=document.getElementById('loan-type-popup');
+  var field=document.getElementById('loan-type-field');
+  if(!popup||!field)return;
+
+  field.addEventListener('click',function(e){
+    e.preventDefault();e.stopPropagation();
+    var rect=field.getBoundingClientRect();
+    popup.style.top=(rect.bottom+window.scrollY+2)+'px';
+    popup.style.left=(rect.left+window.scrollX)+'px';
+    popup.classList.add('open');
+  });
+
+  document.addEventListener('click',function(e){
+    if(!popup.contains(e.target)&&e.target!==field){
+      popup.classList.remove('open');
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')popup.classList.remove('open');
+  });
+
+  popup.addEventListener('click',function(e){
+    var item=e.target.closest('.utp-item');
+    if(!item)return;
+    var val=item.getAttribute('data-val');
+    popup.classList.remove('open');
+    if(val===''){field.textContent='';field.focus();return;}
+    field.textContent=val;
+    field.classList.remove('is-placeholder');
+
+    if(val==='Cash'){
+      var loanEl=document.querySelector('[data-calc="loan"]');
+      var rateEl=document.querySelector('[data-calc="rate"]');
+      var amortEl=document.querySelector('[data-calc="amort"]');
+      if(loanEl){loanEl.textContent='N/A';loanEl.classList.remove('is-placeholder');}
+      if(rateEl){rateEl.textContent='N/A';rateEl.classList.remove('is-placeholder');}
+      if(amortEl){amortEl.textContent='N/A';amortEl.classList.remove('is-placeholder');}
+      var priceEl=document.querySelector('[data-calc="price"]');
+      var price=priceEl?parseCur(priceEl.textContent):0;
+      ['loan-display','rate-display','amort-display','ltv','ltv2','monthly-ds','monthly-ds2','annual-ds','annual-ds2','dcr','dcr2'].forEach(function(key){
+        document.querySelectorAll('[data-out="'+key+'"]').forEach(function(el){el.textContent='N/A';});
+      });
+      if(price>0){
+        ['down-display','down-display2','equity'].forEach(function(key){
+          document.querySelectorAll('[data-out="'+key+'"]').forEach(function(el){el.textContent=fmtCur(price);});
+        });
+      }
+    }
+    recalc();
+    autoSave();
+  });
+})();
+
+/* ================================================================
+   PHOTO CRASH FIX: Compress images before saving to localStorage
+   ================================================================ */
+(function(){
+  var compressSaveTimer=null;
+
+  function compressDataURL(dataURL,maxDim,quality,cb){
+    if(!dataURL||dataURL.indexOf('data:')!==0){cb(dataURL);return;}
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height;
+      if(w<=maxDim&&h<=maxDim){cb(dataURL);return;}
+      if(w>h){h=Math.round(h*(maxDim/w));w=maxDim;}
+      else{w=Math.round(w*(maxDim/h));h=maxDim;}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',quality));
+    };
+    img.onerror=function(){cb(dataURL);};
+    img.src=dataURL;
+  }
+
+  autoSave=function(){
+    clearTimeout(compressSaveTimer);
+    compressSaveTimer=setTimeout(function(){
+      try{
+        var state=captureState();
+        var images=state.images||[];
+        var coverHero=state.coverHero;
+        var total=images.length+(coverHero?1:0);
+        if(total===0){
+          try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e){}
+          return;
+        }
+        var pending=total;
+        function done(){
+          pending--;
+          if(pending>0)return;
+          try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e){
+            // Too big even compressed — try 400px
+            var p2=total;
+            images.forEach(function(im){compressDataURL(im.src,400,0.5,function(r){im.src=r;p2--;if(p2<=0)try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e2){}});});
+            if(coverHero)compressDataURL(coverHero.src,400,0.5,function(r){state.coverHero.src=r;p2--;if(p2<=0)try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e2){}});
+          }
+        }
+        images.forEach(function(im){compressDataURL(im.src,800,0.7,function(r){im.src=r;done();});});
+        if(coverHero)compressDataURL(coverHero.src,800,0.7,function(r){state.coverHero.src=r;done();});
+      }catch(e){}
+    },2500);
+  };
 })();
 
 /* ================================================================
