@@ -137,32 +137,18 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .toc .tr{width:58%;overflow:hidden}
 
 /* ===== SECTION DIVIDER ===== */
-.sdiv{position:relative;overflow:hidden;background:var(--navy)}
-.sdiv::before{content:'';position:absolute;inset:0;background:
-  linear-gradient(135deg,rgba(0,180,216,.03) 1px,transparent 1px),
-  linear-gradient(45deg,rgba(0,180,216,.03) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(0,180,216,.04) 1px,transparent 1px),
-  linear-gradient(0deg,rgba(0,180,216,.04) 1px,transparent 1px);
-  background-size:60px 60px,60px 60px,30px 30px,30px 30px;z-index:1}
-.sdiv::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(to bottom right,white 0%,white 48%,transparent 48%,transparent 100%);z-index:2}
-.sdiv .sl{position:absolute;bottom:40px;left:48px;z-index:3}
-.sdiv .sl::after{display:none}
-.sdiv .wm{font-family:'Playfair Display',serif;font-size:280px;font-weight:900;color:var(--navy);opacity:.06;position:absolute;bottom:-40px;left:20px;line-height:1;pointer-events:none;user-select:none;z-index:3}
-.sdiv .sc{position:relative;z-index:4}
-.sdiv .snum{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:var(--navy);line-height:1;margin:8px 0 6px}
+.sdiv{display:flex;position:relative;overflow:hidden;background:var(--navy)}
+.sdiv .sdiv-bg{position:absolute;inset:0;z-index:0}
+.sdiv .sdiv-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.3)}
+.sdiv .sdiv-tint{position:absolute;inset:0;background:rgba(11,29,58,.75);z-index:1}
+.sdiv .sl{width:50%;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:48px;position:relative;z-index:3}
+.sdiv .sl::after{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--teal),rgba(0,180,216,.2))}
+.sdiv .wm{font-family:'Playfair Display',serif;font-size:300px;font-weight:900;color:white;opacity:.04;position:absolute;bottom:-80px;right:10px;line-height:1;pointer-events:none;user-select:none}
+.sdiv .sc{position:relative;z-index:2}
+.sdiv .snum{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:white;line-height:1;margin:8px 0 6px}
 .sdiv .stt{font-family:'Bebas Neue';font-size:26px;letter-spacing:4px}
-.sdiv .stt .w1{color:var(--navy)}.sdiv .stt .w2{color:var(--teal)}
-.sdiv .sdiv-accent{position:absolute;z-index:3}
-/* Blueprint building lines */
-.sdiv .bp{position:absolute;z-index:2;border:1px solid rgba(0,180,216,.12)}
-.sdiv .bp-1{width:120px;height:200px;top:40px;right:180px}
-.sdiv .bp-2{width:80px;height:280px;top:20px;right:120px}
-.sdiv .bp-3{width:100px;height:160px;top:80px;right:60px}
-.sdiv .bp-4{width:60px;height:120px;top:30px;right:280px}
-.sdiv .bp-5{width:140px;height:100px;bottom:100px;right:100px}
-.sdiv .bp-inner{position:absolute;border:1px solid rgba(0,180,216,.08)}
-.sdiv .bp-inner-1{width:40px;height:60px;top:20px;left:15px}
-.sdiv .bp-inner-2{width:30px;height:40px;bottom:30px;right:10px}
+.sdiv .stt .w1{color:white}.sdiv .stt .w2{color:var(--teal)}
+.sdiv .sr{width:50%;position:relative;z-index:2}
 
 /* ===== CONTENT PAGES ===== */
 .cpg{padding:34px 28px 26px;height:calc(8.5in - 54px);box-sizing:border-box;display:flex;flex-direction:column}
@@ -464,7 +450,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 01 ========================= -->
 <div class="pg sdiv" id="sec-exec">
   <div class="sl"><div class="wm">01</div><div class="sc"><div class="sec-label">SECTION ONE</div><div class="snum">01</div><div class="stt"><span class="w1">EXECUTIVE </span><span class="w2">SUMMARY</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= EXECUTIVE SUMMARY ========================= -->
@@ -526,7 +512,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 02 ========================= -->
 <div class="pg sdiv" id="sec-invest">
   <div class="sl"><div class="wm">02</div><div class="sc"><div class="sec-label">SECTION TWO</div><div class="snum">02</div><div class="stt"><span class="w1">INVESTMENT </span><span class="w2">SUMMARY</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= INVESTMENT SUMMARY — photos below text ========================= -->
@@ -548,7 +534,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 03 ========================= -->
 <div class="pg sdiv" id="sec-market">
   <div class="sl"><div class="wm">03</div><div class="sc"><div class="sec-label">SECTION THREE</div><div class="snum">03</div><div class="stt"><span class="w1">MARKET </span><span class="w2">SUMMARY</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= MARKET SUMMARY — photos below text ========================= -->
@@ -569,7 +555,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 04 ========================= -->
 <div class="pg sdiv" id="sec-rent">
   <div class="sl"><div class="wm">04</div><div class="sc"><div class="sec-label">SECTION FOUR</div><div class="snum">04</div><div class="stt"><span class="w1">UNIT MIX &amp; </span><span class="w2">RENT ROLL</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= RENT ROLL — Current / Proforma ========================= -->
@@ -615,7 +601,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 05 ========================= -->
 <div class="pg sdiv" id="sec-features">
   <div class="sl"><div class="wm">05</div><div class="sc"><div class="sec-label">SECTION FIVE</div><div class="snum">05</div><div class="stt"><span class="w1">PROPERTY </span><span class="w2">FEATURES</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= PROPERTY FEATURES ========================= -->
@@ -658,7 +644,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 06 ========================= -->
 <div class="pg sdiv" id="sec-gallery">
   <div class="sl"><div class="wm">06</div><div class="sc"><div class="sec-label">SECTION SIX</div><div class="snum">06</div><div class="stt"><span class="w1">PROPERTY </span><span class="w2">GALLERY</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= GALLERY 1 ========================= -->
@@ -688,7 +674,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 07 ========================= -->
 <div class="pg sdiv" id="sec-comps">
   <div class="sl"><div class="wm">07</div><div class="sc"><div class="sec-label">SECTION SEVEN</div><div class="snum">07</div><div class="stt"><span class="w1">SALES </span><span class="w2">COMPARABLES</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= SALES COMPARABLES ========================= -->
@@ -707,7 +693,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 08 ========================= -->
 <div class="pg sdiv" id="sec-finance">
   <div class="sl"><div class="wm">08</div><div class="sc"><div class="sec-label">SECTION EIGHT</div><div class="snum">08</div><div class="stt"><span class="w1">FINANCIAL </span><span class="w2">ANALYSIS</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= FINANCIAL ANALYSIS — Current / Proforma ========================= -->
@@ -819,7 +805,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 <!-- ========================= DIVIDER 09 ========================= -->
 <div class="pg sdiv" id="sec-company">
   <div class="sl"><div class="wm">09</div><div class="sc"><div class="sec-label">SECTION NINE</div><div class="snum">09</div><div class="stt"><span class="w1">COMPANY </span><span class="w2">PROFILE</span></div></div></div>
-  <div class="bp bp-1"><div class="bp-inner bp-inner-1"></div></div><div class="bp bp-2"><div class="bp-inner bp-inner-2"></div></div><div class="bp bp-3"></div><div class="bp bp-4"></div><div class="bp bp-5"></div>
+  <div class="sdiv-bg"><div class="sdiv-tint"></div></div><div class="sr"></div>
 </div>
 
 <!-- ========================= COMPANY PROFILE ========================= -->
@@ -1003,7 +989,7 @@ function triggerUpload(container){
       else{var ex=container.querySelector('img');if(ex)ex.replaceWith(img);}
       container.classList.add('filled');
       addImageControls(container,img);
-      if(container.id==='cover-hero'){var cb=document.getElementById('cover-upload-btn');if(cb)cb.style.display='none';}
+      if(container.id==='cover-hero'){var cb=document.getElementById('cover-upload-btn');if(cb)cb.style.display='none';if(window._spreadCover)window._spreadCover(ev.target.result);}
       document.body.removeChild(input);
     };
     reader.readAsDataURL(file);
@@ -1833,6 +1819,7 @@ function doPlace(dataURL,container,idx){
     img.style.filter='brightness(0.5)';
     var cb=document.getElementById('cover-upload-btn');
     if(cb)cb.style.display='none';
+    spreadCoverToDividers(dataURL);
   }
   var ph=container.querySelector('.ph');
   if(ph)ph.replaceWith(img);
@@ -1842,6 +1829,26 @@ function doPlace(dataURL,container,idx){
   markTrayPlaced(idx);
   autoSave();
 }
+
+/* Spread cover photo to all section dividers */
+function spreadCoverToDividers(dataURL){
+  document.querySelectorAll('.sdiv .sdiv-bg').forEach(function(bg){
+    var existing=bg.querySelector('img');
+    if(existing)existing.remove();
+    var img=document.createElement('img');
+    img.src=dataURL;
+    bg.insertBefore(img,bg.firstChild);
+  });
+}
+window._spreadCover=spreadCoverToDividers;
+
+// On load, if cover already has a photo, spread it
+(function(){
+  var coverImg=document.querySelector('#cover-hero img');
+  if(coverImg&&coverImg.src&&coverImg.src.indexOf('data:')===0){
+    spreadCoverToDividers(coverImg.src);
+  }
+})();
 
 /* Click-to-place fallback: override triggerUpload */
 var origTriggerUpload=_om.triggerUpload;
