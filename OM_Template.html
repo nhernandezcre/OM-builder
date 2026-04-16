@@ -141,14 +141,33 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .sdiv .sdiv-bg{position:absolute;inset:0;z-index:0}
 .sdiv .sdiv-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.3)}
 .sdiv .sdiv-tint{position:absolute;inset:0;background:rgba(11,29,58,.75);z-index:1}
-.sdiv .sl{width:50%;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:48px;position:relative;z-index:3}
-.sdiv .sl::after{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--teal),rgba(0,180,216,.2))}
-.sdiv .wm{font-family:'Playfair Display',serif;font-size:300px;font-weight:900;color:white;opacity:.04;position:absolute;bottom:-80px;right:10px;line-height:1;pointer-events:none;user-select:none}
+.sdiv .sl{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;position:relative;z-index:3;text-align:center}
+.sdiv .sl::after{display:none}
+.sdiv .wm{font-family:'Playfair Display',serif;font-size:350px;font-weight:900;color:white;opacity:.04;position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);line-height:1;pointer-events:none;user-select:none}
 .sdiv .sc{position:relative;z-index:2}
-.sdiv .snum{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:white;line-height:1;margin:8px 0 6px}
-.sdiv .stt{font-family:'Bebas Neue';font-size:26px;letter-spacing:4px}
+.sdiv .snum{font-family:'Playfair Display',serif;font-size:100px;font-weight:900;color:white;line-height:1;margin:8px 0 10px}
+.sdiv .stt{font-family:'Bebas Neue';font-size:34px;letter-spacing:6px}
 .sdiv .stt .w1{color:white}.sdiv .stt .w2{color:var(--teal)}
-.sdiv .sr{width:50%;position:relative;z-index:2}
+.sdiv .sr{display:none}
+
+/* ===== MAP PAGES ===== */
+.map-page{padding:30px 20px 24px;height:calc(8.5in - 54px);box-sizing:border-box;display:flex;flex-direction:column}
+.map-page .map-title-bar{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.map-page .map-icon{font-family:'Bebas Neue';font-size:11px;letter-spacing:3px;color:var(--teal);writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);border-left:3px solid var(--teal);padding-left:8px;line-height:1.2}
+.map-page .map-content{flex:1;display:grid;gap:10px;min-height:0}
+.map-page .map-content.aerial{grid-template-columns:38% 1fr}
+.map-page .map-content.comps{grid-template-columns:42% 1fr}
+.map-page .map-zone{border-radius:4px;overflow:hidden;position:relative;border:1px solid var(--g200)}
+.map-page .amenity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.map-page .amenity-cell{border-radius:3px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.map-page .amenity-cell .amenity-num{position:absolute;top:4px;left:4px;background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:10px;font-weight:900;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
+.map-page .amenity-cell .amenity-photo{height:70px;overflow:hidden;position:relative}
+.map-page .amenity-cell .amenity-label{font-size:8px;font-weight:600;color:var(--navy);text-align:center;padding:2px 2px;line-height:1.2;background:var(--g100)}
+.map-page .comp-list{display:flex;flex-direction:column;gap:4px}
+.map-page .comp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--g200)}
+.map-page .comp-num{background:var(--navy);color:white;font-family:'Playfair Display',serif;font-size:10px;font-weight:900;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
+.map-page .comp-thumb{width:50px;height:36px;border-radius:3px;overflow:hidden;flex-shrink:0;position:relative}
+.map-page .comp-addr{font-size:9px;color:var(--g800);flex:1;line-height:1.3}
 
 /* ===== CONTENT PAGES ===== */
 .cpg{padding:34px 28px 26px;height:calc(8.5in - 54px);box-sizing:border-box;display:flex;flex-direction:column}
@@ -552,6 +571,42 @@ img{display:block;width:100%;height:100%;object-fit:cover}
   <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false" data-sync="address">Property Address</span></div>
 </div>
 
+<!-- ========================= AERIAL MAP ========================= -->
+<div class="pg">
+  <div class="hdr"><span class="s">Aerial Map</span><span class="a" contenteditable="true" spellcheck="false" data-sync="address">Property Address, City, State ZIP</span><span class="p">09</span></div>
+  <div class="map-page">
+    <div class="map-title-bar">
+      <div class="map-icon">AERIAL MAP</div>
+      <div>
+        <div class="sec-label">LOCATION OVERVIEW</div>
+        <div class="sec-h" style="font-size:20px">Amenities Near Location</div>
+      </div>
+    </div>
+    <div class="map-content aerial">
+      <div style="display:flex;flex-direction:column;gap:6px;overflow:auto">
+        <div class="amenity-grid">
+          <div class="amenity-cell"><div class="amenity-num">1</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">2</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">3</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">4</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">5</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">6</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+        </div>
+        <div class="amenity-grid">
+          <div class="amenity-cell"><div class="amenity-num">7</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">8</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">9</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">10</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">11</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+          <div class="amenity-cell"><div class="amenity-num">12</div><div class="amenity-photo ph-zone"><div class="ph" style="font-size:7px">PHOTO</div></div><div class="amenity-label" contenteditable="true" spellcheck="false">Amenity Name</div></div>
+        </div>
+      </div>
+      <div class="map-zone ph-zone"><div class="ph">AERIAL MAP — Screenshot from Google Maps</div></div>
+    </div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false" data-sync="address">Property Address</span></div>
+</div>
+
 <!-- ========================= DIVIDER 04 ========================= -->
 <div class="pg sdiv" id="sec-rent">
   <div class="sl"><div class="wm">04</div><div class="sc"><div class="sec-label">SECTION FOUR</div><div class="snum">04</div><div class="stt"><span class="w1">UNIT MIX &amp; </span><span class="w2">RENT ROLL</span></div></div></div>
@@ -686,6 +741,38 @@ img{display:block;width:100%;height:100%;object-fit:cover}
     <div class="rule"></div>
     <div class="comps-grid" id="comps-grid"></div>
     <div class="row-ctrl screen-only" style="margin-top:10px"><button class="btn-add" id="btn-add-comp">+ Add Comp</button></div>
+  </div>
+  <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false" data-sync="address">Property Address</span></div>
+</div>
+
+<!-- ========================= SALES COMP MAP ========================= -->
+<div class="pg">
+  <div class="hdr"><span class="s">Sales Comparables</span><span class="a" contenteditable="true" spellcheck="false" data-sync="address">Property Address, City, State ZIP</span><span class="p">18</span></div>
+  <div class="map-page">
+    <div class="map-title-bar">
+      <div class="map-icon">SALES COMPARABLES MAP</div>
+      <div>
+        <div class="sec-label">MARKET CONTEXT</div>
+        <div class="sec-h" style="font-size:20px">Comparable Sales Map</div>
+      </div>
+    </div>
+    <div class="map-content comps">
+      <div style="display:flex;flex-direction:column;gap:4px;overflow:auto">
+        <div style="font-family:'Bebas Neue';font-size:11px;letter-spacing:2px;color:var(--navy);border-bottom:2px solid var(--teal);padding-bottom:2px;margin-bottom:2px">Comparable Properties</div>
+        <div class="comp-list" id="comp-map-list">
+          <div class="comp-row"><div class="comp-num">S</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">SUBJ</div></div><div class="comp-addr" contenteditable="true" spellcheck="false" data-sync="address">Subject Property Address</div></div>
+          <div class="comp-row"><div class="comp-num">1</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 1 Address</div></div>
+          <div class="comp-row"><div class="comp-num">2</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 2 Address</div></div>
+          <div class="comp-row"><div class="comp-num">3</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 3 Address</div></div>
+          <div class="comp-row"><div class="comp-num">4</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 4 Address</div></div>
+          <div class="comp-row"><div class="comp-num">5</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 5 Address</div></div>
+          <div class="comp-row"><div class="comp-num">6</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 6 Address</div></div>
+          <div class="comp-row"><div class="comp-num">7</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 7 Address</div></div>
+          <div class="comp-row"><div class="comp-num">8</div><div class="comp-thumb ph-zone"><div class="ph" style="font-size:6px">PHOTO</div></div><div class="comp-addr" contenteditable="true" spellcheck="false">Comp 8 Address</div></div>
+        </div>
+      </div>
+      <div class="map-zone ph-zone"><div class="ph">COMP MAP — Screenshot from Google Maps</div></div>
+    </div>
   </div>
   <div class="ftr"><span>Top Gun CRE</span><span>&bull;</span><span contenteditable="true" spellcheck="false" data-sync="address">Property Address</span></div>
 </div>
