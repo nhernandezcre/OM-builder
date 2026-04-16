@@ -926,8 +926,10 @@ function addImageControls(container,img){
   // Create control bar
   var bar=document.createElement('div');
   bar.className='img-ctrl';
-  bar.innerHTML='<span class="lbl">ZOOM</span><button data-act="zout">−</button><button data-act="zin">+</button><span class="lbl">POS</span><button data-act="left">←</button><button data-act="up">↑</button><button data-act="down">↓</button><button data-act="right">→</button><button data-act="reset">Reset</button>';
+  bar.innerHTML='<span class="lbl">ZOOM</span><button data-act="zout">\u2212</button><button data-act="zin">+</button><span class="lbl">POS</span><button data-act="left">\u2190</button><button data-act="up">\u2191</button><button data-act="down">\u2193</button><button data-act="right">\u2192</button><button data-act="reset">Reset</button>';
   container.appendChild(bar);
+  // Ensure container has dark bg for contain mode
+  container.style.backgroundColor='#1a1a1a';
   // Current scale and position
   if(!img.dataset.scale)img.dataset.scale='1';
   if(!img.dataset.px)img.dataset.px='50';
@@ -936,9 +938,18 @@ function addImageControls(container,img){
     var s=parseFloat(img.dataset.scale);
     var px=parseFloat(img.dataset.px);
     var py=parseFloat(img.dataset.py);
+    if(s<1){
+      // Zoom out: switch to contain to reveal full image
+      img.style.objectFit='contain';
+      img.style.transform='none';
+    }else{
+      // Zoom in: use cover + scale for cropped zoom
+      img.style.objectFit='cover';
+      img.style.transform='scale('+s+')';
+    }
     img.style.objectPosition=px+'% '+py+'%';
-    img.style.transform='scale('+s+')';
   }
+  applyTransform();
   bar.addEventListener('click',function(e){
     e.stopPropagation();
     var btn=e.target.closest('button');
@@ -1711,7 +1722,7 @@ function appendTrayThumb(idx){
         ghost.style.display='block';
         document.querySelectorAll('.drag-over').forEach(function(el){el.classList.remove('drag-over');});
         if(target){
-          var zone=target.closest('.ph-zone')||((target.closest('#cover-hero')||target.id==='cover-hero')?document.getElementById('cover-hero'):null);
+          var zone=target.closest('.ph-zone')||(target.closest('.cover')?document.getElementById('cover-hero'):null);
           if(zone)zone.classList.add('drag-over');
         }
       }
@@ -1727,7 +1738,7 @@ function appendTrayThumb(idx){
         // Find drop target
         var target=document.elementFromPoint(ev.clientX,ev.clientY);
         if(target){
-          var zone=target.closest('.ph-zone')||((target.closest('#cover-hero')||target.id==='cover-hero')?document.getElementById('cover-hero'):null);
+          var zone=target.closest('.ph-zone')||(target.closest('.cover')?document.getElementById('cover-hero'):null);
           if(zone){
             placeTrayPhoto(idx,zone);
             return;
