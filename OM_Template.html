@@ -260,7 +260,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 #photo-tray .tray-bar label{font-family:'Bebas Neue';font-size:11px;letter-spacing:2px;color:var(--teal);cursor:pointer;border:1px solid rgba(0,180,216,.3);padding:5px 14px;border-radius:2px}
 #photo-tray .tray-bar label:hover{background:rgba(0,180,216,.15)}
 #photo-tray .tray-thumbs{display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;min-height:50px;align-items:center}
-#photo-tray .tray-thumb{width:80px;height:60px;border-radius:3px;overflow:hidden;position:relative;flex-shrink:0;cursor:grab;border:2px solid transparent}
+#photo-tray .tray-thumb{width:80px;height:60px;border-radius:3px;overflow:hidden;position:relative;flex-shrink:0;cursor:grab;border:2px solid transparent;user-select:none;-webkit-user-select:none}
 #photo-tray .tray-thumb:hover{border-color:var(--teal)}
 #photo-tray .tray-thumb.active{border-color:var(--teal)}
 #photo-tray .tray-thumb.placed::after{content:'\2713';position:absolute;top:2px;right:3px;color:#0f0;font-size:14px;text-shadow:0 0 3px #000}
@@ -269,6 +269,9 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 @media print{#photo-tray{display:none!important}}
 .ph-zone.drag-over{outline:3px solid var(--teal)!important;outline-offset:-3px;background:rgba(0,180,216,.08)!important}
 .ph-zone.drag-over .ph{border-color:var(--teal)!important;color:var(--teal)!important}
+#drag-ghost{position:fixed;pointer-events:none;z-index:20000;width:120px;height:90px;border-radius:4px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.5);border:2px solid var(--teal);opacity:.9;display:none}
+#drag-ghost img{width:100%;height:100%;object-fit:cover}
+@media print{#drag-ghost{display:none!important}}
 
 /* ===== PROGRESS PANEL ===== */
 #progress-panel{position:fixed;bottom:16px;right:16px;background:var(--navy);border:1px solid rgba(0,180,216,.2);border-radius:6px;padding:10px 14px;z-index:9997;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
@@ -354,6 +357,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 <!-- ===== TOAST ===== -->
 <div id="om-toast"></div>
+<div id="drag-ghost"></div>
 
 <!-- ===== PHOTO TRAY ===== -->
 <div id="photo-tray">
@@ -1636,89 +1640,117 @@ function showToast(msg,duration){
 })();
 
 /* ================================================================
-   FEATURE 2: PHOTO STAGING TRAY (with canvas downscaling + drag/drop)
+   FEATURE 2: PHOTO STAGING TRAY (mouse-drag + objectURL for speed)
    ================================================================ */
-var trayPhotos=[];
+var trayPhotos=[];  // {file, objURL, b64:null, placed, el}
 var traySelectedIdx=-1;
 var trayOpen=false;
+var dragState=null; // {idx, ghost, startX, startY}
 
-/* Downscale an image using canvas. Returns dataURL. */
-function downscaleImage(dataURL,maxDim,quality,callback){
-  var img=new Image();
-  img.onload=function(){
-    var w=img.width,h=img.height;
-    if(w>maxDim||h>maxDim){
-      if(w>h){h=Math.round(h*(maxDim/w));w=maxDim;}
-      else{w=Math.round(w*(maxDim/h));h=maxDim;}
-    }
-    var c=document.createElement('canvas');
-    c.width=w;c.height=h;
-    var ctx=c.getContext('2d');
-    ctx.drawImage(img,0,0,w,h);
-    callback(c.toDataURL('image/jpeg',quality||0.85));
-  };
-  img.src=dataURL;
-}
-
-/* Toggle tray open/closed */
+/* Toggle tray */
 document.getElementById('btn-photos').addEventListener('click',function(){
   trayOpen=!trayOpen;
   document.getElementById('photo-tray').classList.toggle('open',trayOpen);
 });
 
-/* Upload handler: read files, downscale, generate thumbs */
+/* Upload: use objectURL for instant thumbnails, defer base64 */
 document.getElementById('tray-file-input').addEventListener('change',function(){
   var files=this.files;
-  var pending=files.length;
-  if(!pending)return;
+  if(!files.length)return;
   for(var i=0;i<files.length;i++){
-    (function(file){
-      var reader=new FileReader();
-      reader.onload=function(ev){
-        var rawURL=ev.target.result;
-        // Downscale full image to 2000px max for print quality
-        downscaleImage(rawURL,2000,0.88,function(fullURL){
-          // Generate 160px thumbnail for tray display
-          downscaleImage(rawURL,160,0.7,function(thumbURL){
-            trayPhotos.push({src:fullURL,thumb:thumbURL,placed:false,el:null});
-            appendTrayThumb(trayPhotos.length-1);
-            updateTrayCount();
-          });
-        });
-      };
-      reader.readAsDataURL(file);
-    })(files[i]);
+    var file=files[i];
+    var objURL=URL.createObjectURL(file);
+    var entry={file:file,objURL:objURL,b64:null,placed:false,el:null};
+    trayPhotos.push(entry);
+    appendTrayThumb(trayPhotos.length-1);
   }
+  updateTrayCount();
   this.value='';
 });
 
-/* Append a single thumbnail (no full rebuild) */
+/* Append one thumbnail to tray (no full rebuild) */
 function appendTrayThumb(idx){
   var container=document.getElementById('tray-thumbs');
   var p=trayPhotos[idx];
   var d=document.createElement('div');
   d.className='tray-thumb';
-  d.draggable=true;
   d.dataset.idx=idx;
-  d.innerHTML='<img src="'+p.thumb+'" draggable="false">';
-  d.addEventListener('dragstart',function(e){
+  var thumbImg=document.createElement('img');
+  thumbImg.src=p.objURL;
+  d.appendChild(thumbImg);
+
+  /* Mouse-drag start */
+  d.addEventListener('mousedown',function(e){
+    if(e.button!==0)return;
+    e.preventDefault();
     traySelectedIdx=idx;
-    e.dataTransfer.setData('text/plain',String(idx));
-    e.dataTransfer.effectAllowed='copy';
-    d.style.opacity='0.5';
-  });
-  d.addEventListener('dragend',function(){d.style.opacity='1';});
-  d.addEventListener('click',function(){
-    traySelectedIdx=idx;
-    p.placed=false;
-    // Update active states
+    // Show active state
     container.querySelectorAll('.tray-thumb').forEach(function(t){t.classList.remove('active');});
-    d.classList.remove('placed');
     d.classList.add('active');
-    updateTrayCount();
+    // Start drag after small movement threshold
+    var startX=e.clientX,startY=e.clientY;
+    var dragging=false;
+    var ghost=document.getElementById('drag-ghost');
+
+    function onMove(ev){
+      var dx=ev.clientX-startX,dy=ev.clientY-startY;
+      if(!dragging&&(Math.abs(dx)>5||Math.abs(dy)>5)){
+        dragging=true;
+        ghost.innerHTML='';
+        var gi=document.createElement('img');
+        gi.src=p.objURL;
+        ghost.appendChild(gi);
+        ghost.style.display='block';
+      }
+      if(dragging){
+        ghost.style.left=(ev.clientX-60)+'px';
+        ghost.style.top=(ev.clientY-45)+'px';
+        // Highlight drop target under cursor
+        ghost.style.display='none';
+        var target=document.elementFromPoint(ev.clientX,ev.clientY);
+        ghost.style.display='block';
+        document.querySelectorAll('.drag-over').forEach(function(el){el.classList.remove('drag-over');});
+        if(target){
+          var zone=target.closest('.ph-zone')||((target.closest('#cover-hero')||target.id==='cover-hero')?document.getElementById('cover-hero'):null);
+          if(zone)zone.classList.add('drag-over');
+        }
+      }
+    }
+
+    function onUp(ev){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      document.querySelectorAll('.drag-over').forEach(function(el){el.classList.remove('drag-over');});
+      var ghost=document.getElementById('drag-ghost');
+      ghost.style.display='none';
+      if(dragging){
+        // Find drop target
+        var target=document.elementFromPoint(ev.clientX,ev.clientY);
+        if(target){
+          var zone=target.closest('.ph-zone')||((target.closest('#cover-hero')||target.id==='cover-hero')?document.getElementById('cover-hero'):null);
+          if(zone){
+            placeTrayPhoto(idx,zone);
+            return;
+          }
+        }
+      }
+      // If not dragged (just clicked), select it for click-to-place
+    }
+
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
   });
+
   p.el=d;
   container.appendChild(d);
+}
+
+function updateTrayCount(){
+  var ct=document.getElementById('tray-count');
+  if(trayPhotos.length===0){ct.textContent='';return;}
+  var placed=0;
+  for(var i=0;i<trayPhotos.length;i++)if(trayPhotos[i].placed)placed++;
+  ct.textContent=placed+'/'+trayPhotos.length+' placed';
 }
 
 function markTrayPlaced(idx){
@@ -1733,24 +1765,43 @@ function markTrayPlaced(idx){
   updateTrayCount();
 }
 
-function updateTrayCount(){
-  var ct=document.getElementById('tray-count');
-  if(trayPhotos.length===0){ct.textContent='';return;}
-  var placed=0;
-  for(var i=0;i<trayPhotos.length;i++)if(trayPhotos[i].placed)placed++;
-  ct.textContent=placed+'/'+trayPhotos.length+' placed';
-}
-
-/* Place a tray photo into a container */
+/* Convert file to downscaled base64 via canvas, then place */
 function placeTrayPhoto(idx,container){
   var p=trayPhotos[idx];
   if(!p)return;
+  // If already converted, place immediately
+  if(p.b64){
+    doPlace(p.b64,container,idx);
+    return;
+  }
+  // Convert on demand: read file, downscale, place
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var rawImg=new Image();
+    rawImg.onload=function(){
+      var w=rawImg.width,h=rawImg.height;
+      var max=2000;
+      if(w>max||h>max){
+        if(w>h){h=Math.round(h*(max/w));w=max;}
+        else{w=Math.round(w*(max/h));h=max;}
+      }
+      var c=document.createElement('canvas');
+      c.width=w;c.height=h;
+      c.getContext('2d').drawImage(rawImg,0,0,w,h);
+      p.b64=c.toDataURL('image/jpeg',0.88);
+      doPlace(p.b64,container,idx);
+    };
+    rawImg.src=ev.target.result;
+  };
+  reader.readAsDataURL(p.file);
+}
+
+function doPlace(dataURL,container,idx){
   var img=document.createElement('img');
-  img.src=p.src;
+  img.src=dataURL;
   img.style.objectPosition='center center';
   img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';
-  var isCover=container.id==='cover-hero';
-  if(isCover)img.style.filter='brightness(0.5)';
+  if(container.id==='cover-hero')img.style.filter='brightness(0.5)';
   var ph=container.querySelector('.ph');
   if(ph)ph.replaceWith(img);
   else{var ex=container.querySelector('img');if(ex)ex.replaceWith(img);}
@@ -1760,41 +1811,14 @@ function placeTrayPhoto(idx,container){
   autoSave();
 }
 
-/* Add drag/drop handlers to a photo zone */
-function addDropHandlers(zone){
-  zone.addEventListener('dragover',function(e){
-    e.preventDefault();
-    e.dataTransfer.dropEffect='copy';
-    zone.classList.add('drag-over');
-  });
-  zone.addEventListener('dragleave',function(){
-    zone.classList.remove('drag-over');
-  });
-  zone.addEventListener('drop',function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    zone.classList.remove('drag-over');
-    var idx=parseInt(e.dataTransfer.getData('text/plain'));
-    if(!isNaN(idx)&&trayPhotos[idx]){
-      placeTrayPhoto(idx,zone);
-    }
-  });
-}
-
-/* Attach drop handlers to all existing ph-zones + cover hero */
-document.querySelectorAll('.ph-zone').forEach(addDropHandlers);
-var coverHeroDrop=document.getElementById('cover-hero');
-if(coverHeroDrop)addDropHandlers(coverHeroDrop);
-
 /* Click-to-place fallback: override triggerUpload */
 var origTriggerUpload=_om.triggerUpload;
 _om.triggerUpload=function(container){
-  if(trayOpen&&traySelectedIdx>=0&&trayPhotos[traySelectedIdx]){
+  if(trayOpen&&traySelectedIdx>=0&&trayPhotos[traySelectedIdx]&&!trayPhotos[traySelectedIdx].placed){
     placeTrayPhoto(traySelectedIdx,container);
     return;
   }
   if(trayOpen){
-    // Try next unplaced photo
     for(var i=0;i<trayPhotos.length;i++){
       if(!trayPhotos[i].placed){
         placeTrayPhoto(i,container);
