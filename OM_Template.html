@@ -982,7 +982,7 @@ function attachUpload(zone){
     if(e.target.classList.contains('del-comp-btn'))return;
     if(e.target.classList.contains('del-broker-btn'))return;
     if(e.target.closest('.img-ctrl'))return;
-    triggerUpload(zone);
+    (window._om&&window._om.triggerUpload||triggerUpload)(zone);
   });
 }
 document.querySelectorAll('.ph-zone').forEach(attachUpload);
@@ -1087,4 +1087,1002 @@ function makeBrokerCard(){
   card.style.position='relative';
   card.innerHTML='<button class="del-broker-btn screen-only" onclick="deleteBroker(this)" title="Remove">&times;</button><div class="bk-photo ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div><div class="bk-info"><div class="bk-name" contenteditable="true" spellcheck="false">Agent Name</div><div class="bk-title" contenteditable="true" spellcheck="false">TITLE / ROLE</div><div class="bk-details" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com<br>DRE #00000000</div><div class="bk-bio" contenteditable="true" spellcheck="false">Brief bio — experience, background, specialties. Click to edit.</div></div>';
   attachUpload(card.querySelector('.ph-zone'));
-  return 
+  return card;
+}
+document.getElementById('btn-add-broker').addEventListener('click',function(){
+  var grid=document.getElementById('broker-grid');
+  grid.appendChild(makeBrokerCard());
+  // Also add to cover and back cover
+  var coverAgs=document.getElementById('cover-agents');
+  var agDiv=document.createElement('div');agDiv.className='ag';
+  agDiv.innerHTML='<div class="n" contenteditable="true" spellcheck="false">AGENT NAME</div><div class="d" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; DRE #00000000</div>';
+  coverAgs.appendChild(agDiv);
+  var backAgs=document.getElementById('back-agents');
+  var cbx=document.createElement('div');cbx.className='cb-x';
+  cbx.innerHTML='<div class="an" contenteditable="true" spellcheck="false">Agent Name</div><div class="ai" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com &bull; DRE #00000000</div>';
+  backAgs.appendChild(cbx);
+});
+window.deleteBroker=function(btn){
+  var card=btn.closest('.broker-card');
+  var grid=document.getElementById('broker-grid');
+  var cards=Array.from(grid.querySelectorAll('.broker-card'));
+  var idx=cards.indexOf(card);
+  card.remove();
+  // Also remove from cover and back cover
+  var coverAgs=document.querySelectorAll('#cover-agents .ag');
+  if(coverAgs[idx])coverAgs[idx].remove();
+  var backCbs=document.querySelectorAll('#back-agents .cb-x');
+  if(backCbs[idx])backCbs[idx].remove();
+};
+
+// Attach upload to initial broker card(s)
+document.querySelectorAll('#broker-grid .ph-zone').forEach(attachUpload);
+
+/* ===== AUTO-CALCULATION ENGINE ===== */
+function recalc(){
+  // Read primary inputs
+  var priceStr=document.querySelector('[data-calc="price"]');
+  var price=priceStr?parseCur(priceStr.textContent):0;
+
+  var unitsStr=document.querySelector('[data-calc="units"]');
+  var units=unitsStr?parseInt(String(unitsStr.textContent).replace(/[^0-9]/g,''))||0:0;
+
+  var bsfStr=document.querySelector('[data-calc="bsf"]');
+  var bsf=bsfStr?parseCur(bsfStr.textContent):0;
+
+  var vacStr=document.querySelector('[data-calc="vacancy"]');
+  var vacRate=vacStr?parseFloat(String(vacStr.textContent).replace(/[^0-9.]/g,''))||3:3;
+
+  var loanStr=document.querySelector('[data-calc="loan"]');
+  var loan=loanStr?parseCur(loanStr.textContent):0;
+
+  var rateStr=document.querySelector('[data-calc="rate"]');
+  var rate=rateStr?parseFloat(String(rateStr.textContent).replace(/[^0-9.]/g,''))||0:0;
+
+  var amortStr=document.querySelector('[data-calc="amort"]');
+  var amort=amortStr?parseInt(String(amortStr.textContent).replace(/[^0-9]/g,''))||30:30;
+
+  // Sum rents
+  var totalCurM=0,totalProM=0,totalSqft=0;
+  document.querySelectorAll('[data-rent="cur"]').forEach(function(el){totalCurM+=parseCur(el.textContent);});
+  document.querySelectorAll('[data-rent="pro"]').forEach(function(el){totalProM+=parseCur(el.textContent);});
+  document.querySelectorAll('[data-sqft]').forEach(function(el){totalSqft+=parseCur(el.textContent);});
+
+  // Other income
+  var otherM=0;
+  document.querySelectorAll('[data-other]').forEach(function(el){otherM+=parseCur(el.textContent);});
+  var otherA=otherM*12;
+
+  // Annual rents
+  var annCur=totalCurM*12,annPro=totalProM*12;
+
+  // Vacancy
+  var vacCur=annCur*(vacRate/100),vacPro=annPro*(vacRate/100);
+
+  // GOI
+  var goiCur=annCur+otherA-vacCur,goiPro=annPro+otherA-vacPro;
+
+  // Expenses
+  var expCur=0,expPro=0;
+  document.querySelectorAll('[data-exp="cur"]').forEach(function(el){expCur+=Math.abs(parseCur(el.textContent));});
+  document.querySelectorAll('[data-exp="pro"]').forEach(function(el){expPro+=Math.abs(parseCur(el.textContent));});
+
+  // NOI
+  var noiCur=goiCur-expCur,noiPro=goiPro-expPro;
+
+  // Debt service
+  var monthlyDS=0,annualDS=0;
+  if(loan>0&&rate>0&&amort>0){
+    var mr=rate/100/12,np=amort*12;
+    monthlyDS=loan*(mr*Math.pow(1+mr,np))/(Math.pow(1+mr,np)-1);
+    annualDS=monthlyDS*12;
+  }
+
+  // Cash flow
+  var cfCur=noiCur-annualDS,cfPro=noiPro-annualDS;
+
+  // Metrics
+  var pricePerUnit=units>0?price/units:0;
+  var pricePSF=bsf>0?price/bsf:0;
+  var capCur=price>0?(noiCur/price)*100:0;
+  var capPro=price>0?(noiPro/price)*100:0;
+  var grmCur=annCur>0?price/annCur:0;
+  var grmPro=annPro>0?price/annPro:0;
+  var upside=totalCurM>0?((totalProM-totalCurM)/totalCurM)*100:0;
+  var down=price-loan;
+  var ltv=price>0?(loan/price)*100:0;
+  var dcr=annualDS>0?noiPro/annualDS:0;
+  var cocPro=down>0?(cfPro/down)*100:0;
+  var avgCur=units>0?totalCurM/units:0;
+  var avgPro=units>0?totalProM/units:0;
+  var expPerUnit=units>0?expCur/units:0;
+
+  // Write all outputs
+  setOut('price-per-unit',pricePerUnit>0?fmtCur(pricePerUnit):'—');
+  setOut('price-per-unit2',pricePerUnit>0?fmtCur(pricePerUnit):'—');
+  setOut('price-per-unit3',pricePerUnit>0?fmtCur(pricePerUnit):'—');
+  setOut('price-psf',pricePSF>0?fmtCur(Math.round(pricePSF)):'—');
+  setOut('price-psf2',pricePSF>0?fmtCur(Math.round(pricePSF)):'—');
+  setOut('price-display',price>0?fmtCur(price):'—');
+  setOut('price-display2',price>0?fmtCur(price):'—');
+  setOut('units-display',units>0?String(units):'—');
+  setOut('units-display2',units>0?String(units):'—');
+  setOut('units-display3',units>0?String(units):'—');
+  setOut('bsf-display',bsf>0?bsf.toLocaleString('en-US'):'—');
+  setOut('total-sqft',totalSqft>0?totalSqft.toLocaleString('en-US'):'—');
+  setOut('total-rent-cur',totalCurM>0?fmtCur(totalCurM):'—');
+  setOut('total-rent-pro',totalProM>0?fmtCur(totalProM):'—');
+  setOut('annual-rent-cur',annCur>0?fmtCur(annCur):'—');
+  setOut('annual-rent-pro',annPro>0?fmtCur(annPro):'—');
+  setOut('other-monthly',otherM>0?fmtCur(otherM):'—');
+  setOut('annual-other',otherA>0?fmtCur(otherA):'—');
+  setOut('noi-cur-display',noiCur!==0?fmtCur(noiCur):'—');
+  setOut('noi-pro-display',noiPro!==0?fmtCur(noiPro):'—');
+  setOut('noi-cur2',noiCur!==0?fmtCur(noiCur):'—');
+  setOut('noi-pro2',noiPro!==0?fmtCur(noiPro):'—');
+  setOut('cap-cur',capCur>0?fmtPct(capCur):'—');
+  setOut('cap-pro',capPro>0?fmtPct(capPro):'—');
+  setOut('cap-cur3',capCur>0?fmtPct(capCur):'—');
+  setOut('cap-pro2',capPro>0?fmtPct(capPro):'—');
+  setOut('cap-pro3',capPro>0?fmtPct(capPro):'—');
+  setOut('grm-cur',grmCur>0?fmtDec(grmCur):'—');
+  setOut('grm-pro',grmPro>0?fmtDec(grmPro):'—');
+  setOut('grm-cur2',grmCur>0?fmtDec(grmCur):'—');
+  setOut('grm-pro2',grmPro>0?fmtDec(grmPro):'—');
+  setOut('upside',upside>0?Math.round(upside)+'%':'—');
+  setOut('upside2',upside>0?Math.round(upside)+'%':'—');
+  setOut('avg-rent-cur',avgCur>0?fmtCur(Math.round(avgCur)):'—');
+  setOut('avg-rent-pro',avgPro>0?fmtCur(Math.round(avgPro)):'—');
+  setOut('exp-total-cur',expCur>0?fmtCur(expCur):'—');
+  setOut('exp-total-pro',expPro>0?fmtCur(expPro):'—');
+  setOut('exp-per-unit',expPerUnit>0?fmtCur(Math.round(expPerUnit)):'—');
+  setOut('loan-display',loan>0?fmtCur(loan):'—');
+  setOut('rate-display',rate>0?fmtPct(rate):'—');
+  setOut('amort-display',amort>0?amort+' Years':'—');
+  setOut('ltv',ltv>0?Math.round(ltv)+'%':'—');
+  setOut('ltv2',ltv>0?Math.round(ltv)+'%':'—');
+  setOut('monthly-ds',monthlyDS>0?fmtCur(Math.round(monthlyDS)):'—');
+  setOut('monthly-ds2',monthlyDS>0?fmtCur(Math.round(monthlyDS)):'—');
+  setOut('annual-ds',annualDS>0?fmtCur(Math.round(annualDS)):'—');
+  setOut('annual-ds2',annualDS>0?fmtCur(Math.round(annualDS)):'—');
+  setOut('down-display',down>0?fmtCur(down):'—');
+  setOut('down-display2',down>0?fmtCur(down):'—');
+  setOut('equity',down>0?fmtCur(down):'—');
+  setOut('dcr',dcr>0?fmtDec(dcr):'—');
+  setOut('dcr2',dcr>0?fmtDec(dcr):'—');
+  setOut('cf-cur',fmtCur(Math.round(cfCur)));
+  setOut('cf-pro',fmtCur(Math.round(cfPro)));
+  setOut('coc-pro',cocPro!==0?fmtPct(cocPro):'—');
+  // Operating table
+  setOut('t-gsr-cur',annCur>0?fmtCur(annCur):'—');
+  setOut('t-gsr-pro',annPro>0?fmtCur(annPro):'—');
+  setOut('t-vac-cur',vacCur>0?'('+fmtCur(Math.round(vacCur))+')':'—');
+  setOut('t-vac-pro',vacPro>0?'('+fmtCur(Math.round(vacPro))+')':'—');
+  setOut('t-oi',otherA>0?fmtCur(otherA):'—');
+  setOut('t-oi2',otherA>0?fmtCur(otherA):'—');
+  setOut('t-goi-cur',goiCur>0?fmtCur(Math.round(goiCur)):'—');
+  setOut('t-goi-pro',goiPro>0?fmtCur(Math.round(goiPro)):'—');
+  setOut('t-exp-cur',expCur>0?'('+fmtCur(expCur)+')':'—');
+  setOut('t-exp-pro',expPro>0?'('+fmtCur(expPro)+')':'—');
+  setOut('t-noi-cur',noiCur!==0?fmtCur(Math.round(noiCur)):'—');
+  setOut('t-noi-pro',noiPro!==0?fmtCur(Math.round(noiPro)):'—');
+  setOut('t-ds',annualDS>0?'('+fmtCur(Math.round(annualDS))+')':'—');
+  setOut('t-ds2',annualDS>0?'('+fmtCur(Math.round(annualDS))+')':'—');
+  setOut('t-cf-cur',fmtCur(Math.round(cfCur)));
+  setOut('t-cf-pro',fmtCur(Math.round(cfPro)));
+  setOut('t-cap-cur',capCur>0?fmtPct(capCur):'—');
+  setOut('t-cap-pro',capPro>0?fmtPct(capPro):'—');
+  setOut('t-grm-cur',grmCur>0?fmtDec(grmCur):'—');
+  setOut('t-grm-pro',grmPro>0?fmtDec(grmPro):'—');
+}
+
+// Listen for input on any calc/rent/exp field
+document.addEventListener('input',function(e){
+  var el=e.target;
+  if(el.hasAttribute('data-calc')||el.hasAttribute('data-rent')||el.hasAttribute('data-exp')||el.hasAttribute('data-other')||el.hasAttribute('data-sqft')){
+    recalc();
+  }
+});
+
+// Initial calc
+recalc();
+
+/* ===== TOOLBAR BUTTONS ===== */
+document.getElementById('btn-pdf').addEventListener('click',function(){window.print();});
+document.getElementById('btn-reset').addEventListener('click',function(){
+  if(confirm('Reset all content back to the blank template? This cannot be undone.')){
+    try{localStorage.removeItem('tgcre-om-save');}catch(e){}
+    window.location.reload();
+  }
+});
+
+/* ===== EXPORT FUNCTIONS FOR FEATURES SCRIPT ===== */
+window._om={triggerUpload:triggerUpload,addImageControls:addImageControls,attachUpload:attachUpload,makeCompCard:makeCompCard,makeBrokerCard:makeBrokerCard,recalc:recalc,parseCur:parseCur,fmtCur:fmtCur,fmtPct:fmtPct,setOut:setOut};
+
+})();
+/* === END ORIGINAL IIFE === */
+</script>
+
+<!-- ===== FEATURES SCRIPT (isolated) ===== -->
+<script>
+(function(){
+"use strict";
+console.log('[OM Features] Script loaded');
+
+var _om=window._om;
+if(!_om){console.error('[OM Features] _om not found');return;}
+
+var triggerUpload=_om.triggerUpload;
+var addImageControls=_om.addImageControls;
+var attachUpload=_om.attachUpload;
+var makeCompCard=_om.makeCompCard;
+var makeBrokerCard=_om.makeBrokerCard;
+var recalc=_om.recalc;
+var parseCur=_om.parseCur;
+var fmtCur=_om.fmtCur;
+
+/* ================================================================
+   FEATURE 1: AUTO-SAVE / LOAD WITH localStorage
+   ================================================================ */
+var SAVE_KEY='tgcre-om-save';
+var saveTimer=null;
+
+function captureState(){
+  var state={};
+  // All contenteditable fields: store innerHTML keyed by a path
+  var editables=document.querySelectorAll('[contenteditable="true"]');
+  state.fields=[];
+  editables.forEach(function(el){
+    var path=getElPath(el);
+    state.fields.push({path:path,html:el.innerHTML});
+  });
+  // All images (uploaded photos)
+  state.images=[];
+  document.querySelectorAll('.ph-zone').forEach(function(zone,i){
+    var img=zone.querySelector('img');
+    if(img){
+      state.images.push({idx:i,src:img.src,scale:img.dataset.scale||'1',px:img.dataset.px||'50',py:img.dataset.py||'50'});
+    }
+  });
+  // Cover hero image
+  var coverImg=document.querySelector('#cover-hero img');
+  if(coverImg&&coverImg.src&&coverImg.src.indexOf('data:')===0){
+    state.coverHero={src:coverImg.src,scale:coverImg.dataset.scale||'1',px:coverImg.dataset.px||'50',py:coverImg.dataset.py||'50'};
+  }
+  // Dynamic rows: rent roll
+  var rentRows=[];
+  document.querySelectorAll('#rent-roll-body tr').forEach(function(tr){
+    var cells=[];
+    tr.querySelectorAll('td:not(.del-cell)').forEach(function(td){cells.push(td.innerHTML);});
+    rentRows.push(cells);
+  });
+  state.rentRows=rentRows;
+  // Dynamic rows: expenses
+  var expRows=[];
+  document.querySelectorAll('#exp-body tr').forEach(function(tr){
+    var cells=[];
+    tr.querySelectorAll('td:not(.del-cell)').forEach(function(td){cells.push(td.innerHTML);});
+    expRows.push(cells);
+  });
+  state.expRows=expRows;
+  // Comps
+  var comps=[];
+  document.querySelectorAll('#comps-grid .cc').forEach(function(cc){
+    var comp={};
+    comp.address=cc.querySelector('.ca')?cc.querySelector('.ca').innerHTML:'';
+    comp.metrics=[];
+    cc.querySelectorAll('.cv').forEach(function(cv){comp.metrics.push(cv.innerHTML);});
+    comp.note=cc.querySelector('.comp-note')?cc.querySelector('.comp-note').innerHTML:'';
+    var cimg=cc.querySelector('.cph img');
+    if(cimg)comp.img={src:cimg.src,scale:cimg.dataset.scale||'1',px:cimg.dataset.px||'50',py:cimg.dataset.py||'50'};
+    comps.push(comp);
+  });
+  state.comps=comps;
+  // Brokers
+  var brokers=[];
+  document.querySelectorAll('#broker-grid .broker-card').forEach(function(bc){
+    var b={};
+    b.name=bc.querySelector('.bk-name')?bc.querySelector('.bk-name').innerHTML:'';
+    b.title=bc.querySelector('.bk-title')?bc.querySelector('.bk-title').innerHTML:'';
+    b.details=bc.querySelector('.bk-details')?bc.querySelector('.bk-details').innerHTML:'';
+    b.bio=bc.querySelector('.bk-bio')?bc.querySelector('.bk-bio').innerHTML:'';
+    var bimg=bc.querySelector('.bk-photo img');
+    if(bimg)b.img={src:bimg.src,scale:bimg.dataset.scale||'1',px:bimg.dataset.px||'50',py:bimg.dataset.py||'50'};
+    brokers.push(b);
+  });
+  state.brokers=brokers;
+  // Cover agents
+  var coverAgs=[];
+  document.querySelectorAll('#cover-agents .ag').forEach(function(ag){
+    coverAgs.push({n:ag.querySelector('.n')?ag.querySelector('.n').innerHTML:'',d:ag.querySelector('.d')?ag.querySelector('.d').innerHTML:''});
+  });
+  state.coverAgents=coverAgs;
+  // Back cover agents
+  var backAgs=[];
+  document.querySelectorAll('#back-agents .cb-x').forEach(function(cb){
+    backAgs.push({an:cb.querySelector('.an')?cb.querySelector('.an').innerHTML:'',ai:cb.querySelector('.ai')?cb.querySelector('.ai').innerHTML:''});
+  });
+  state.backAgents=backAgs;
+  return state;
+}
+
+function getElPath(el){
+  var parts=[];
+  while(el&&el!==document.body){
+    var parent=el.parentElement;
+    if(!parent)break;
+    var idx=Array.from(parent.children).indexOf(el);
+    parts.unshift(idx);
+    el=parent;
+  }
+  return parts.join('/');
+}
+
+function getElByPath(path){
+  var parts=path.split('/').map(Number);
+  var el=document.body;
+  for(var i=0;i<parts.length;i++){
+    if(!el||!el.children[parts[i]])return null;
+    el=el.children[parts[i]];
+  }
+  return el;
+}
+
+function restoreState(state){
+  if(!state)return;
+  // Restore contenteditable fields
+  if(state.fields){
+    state.fields.forEach(function(f){
+      var el=getElByPath(f.path);
+      if(el&&el.getAttribute('contenteditable')==='true'){
+        el.innerHTML=f.html;
+      }
+    });
+  }
+  // Restore images
+  if(state.images){
+    var zones=document.querySelectorAll('.ph-zone');
+    state.images.forEach(function(im){
+      var zone=zones[im.idx];
+      if(!zone)return;
+      var img=document.createElement('img');
+      img.src=im.src;img.dataset.scale=im.scale;img.dataset.px=im.px;img.dataset.py=im.py;
+      img.style.objectPosition=im.px+'% '+im.py+'%';
+      img.style.transform='scale('+im.scale+')';
+      var ph=zone.querySelector('.ph');
+      if(ph)ph.replaceWith(img);
+      else{var ex=zone.querySelector('img');if(ex)ex.replaceWith(img);}
+      zone.classList.add('filled');
+      addImageControls(zone,img);
+    });
+  }
+  // Cover hero
+  if(state.coverHero){
+    var ch=document.getElementById('cover-hero');
+    if(ch){
+      var img=document.createElement('img');
+      img.src=state.coverHero.src;img.dataset.scale=state.coverHero.scale;img.dataset.px=state.coverHero.px;img.dataset.py=state.coverHero.py;
+      img.style.objectPosition=state.coverHero.px+'% '+state.coverHero.py+'%';
+      img.style.transform='scale('+state.coverHero.scale+')';
+      img.style.filter='brightness(0.5)';
+      var ph=ch.querySelector('.ph');
+      if(ph)ph.replaceWith(img);
+      else{var ex=ch.querySelector('img');if(ex)ex.replaceWith(img);}
+      ch.classList.add('filled');
+      addImageControls(ch,img);
+    }
+  }
+  // Rent rows
+  if(state.rentRows){
+    var tbody=document.getElementById('rent-roll-body');
+    tbody.innerHTML='';
+    state.rentRows.forEach(function(cells){
+      var tr=document.createElement('tr');
+      var attrs=['','spellcheck="false"','spellcheck="false"','data-sqft','data-rent="cur"','data-rent="pro" class="hl"'];
+      cells.forEach(function(c,i){
+        var td=document.createElement('td');
+        td.contentEditable='true';
+        if(i===0){}
+        if(i===1||i===2)td.spellcheck=false;
+        if(i===3)td.setAttribute('data-sqft','');
+        if(i===4)td.setAttribute('data-rent','cur');
+        if(i===5){td.setAttribute('data-rent','pro');td.className='hl';}
+        td.innerHTML=c;
+        tr.appendChild(td);
+      });
+      var dc=document.createElement('td');dc.className='del-cell screen-only';
+      dc.innerHTML='<button onclick="deleteRentRow(this)">&times;</button>';
+      tr.appendChild(dc);
+      tbody.appendChild(tr);
+    });
+  }
+  // Expense rows
+  if(state.expRows){
+    var ebody=document.getElementById('exp-body');
+    ebody.innerHTML='';
+    state.expRows.forEach(function(cells){
+      var tr=document.createElement('tr');
+      cells.forEach(function(c,i){
+        var td=document.createElement('td');
+        td.contentEditable='true';
+        if(i===0)td.spellcheck=false;
+        if(i===1)td.setAttribute('data-exp','cur');
+        if(i===2)td.setAttribute('data-exp','pro');
+        td.innerHTML=c;
+        tr.appendChild(td);
+      });
+      var dc=document.createElement('td');dc.className='del-cell screen-only';
+      dc.innerHTML='<button onclick="deleteExpRow(this)">&times;</button>';
+      tr.appendChild(dc);
+      ebody.appendChild(tr);
+    });
+  }
+  // Comps
+  if(state.comps){
+    var cg=document.getElementById('comps-grid');
+    cg.innerHTML='';
+    state.comps.forEach(function(comp,i){
+      var card=makeCompCard(i+1);
+      if(comp.address)card.querySelector('.ca').innerHTML=comp.address;
+      if(comp.metrics){
+        var cvs=card.querySelectorAll('.cv');
+        comp.metrics.forEach(function(m,j){if(cvs[j])cvs[j].innerHTML=m;});
+      }
+      if(comp.note)card.querySelector('.comp-note').innerHTML=comp.note;
+      if(comp.img){
+        var ph=card.querySelector('.cph .ph');
+        var img=document.createElement('img');
+        img.src=comp.img.src;img.dataset.scale=comp.img.scale;img.dataset.px=comp.img.px;img.dataset.py=comp.img.py;
+        img.style.objectPosition=comp.img.px+'% '+comp.img.py+'%';
+        img.style.transform='scale('+comp.img.scale+')';
+        if(ph)ph.replaceWith(img);
+        var cph=card.querySelector('.cph');
+        if(cph){cph.classList.add('filled');addImageControls(cph,img);}
+      }
+      cg.appendChild(card);
+    });
+  }
+  // Brokers
+  if(state.brokers){
+    var bg=document.getElementById('broker-grid');
+    bg.innerHTML='';
+    state.brokers.forEach(function(b){
+      var card=makeBrokerCard();
+      if(b.name)card.querySelector('.bk-name').innerHTML=b.name;
+      if(b.title)card.querySelector('.bk-title').innerHTML=b.title;
+      if(b.details)card.querySelector('.bk-details').innerHTML=b.details;
+      if(b.bio)card.querySelector('.bk-bio').innerHTML=b.bio;
+      if(b.img){
+        var ph=card.querySelector('.bk-photo .ph');
+        var img=document.createElement('img');
+        img.src=b.img.src;img.dataset.scale=b.img.scale;img.dataset.px=b.img.px;img.dataset.py=b.img.py;
+        img.style.objectPosition=b.img.px+'% '+b.img.py+'%';
+        img.style.transform='scale('+b.img.scale+')';
+        if(ph)ph.replaceWith(img);
+        var bpz=card.querySelector('.bk-photo');
+        if(bpz){bpz.classList.add('filled');addImageControls(bpz,img);}
+      }
+      bg.appendChild(card);
+    });
+  }
+  // Cover agents
+  if(state.coverAgents){
+    var ca=document.getElementById('cover-agents');
+    ca.innerHTML='';
+    state.coverAgents.forEach(function(ag){
+      var d=document.createElement('div');d.className='ag';
+      d.innerHTML='<div class="n" contenteditable="true" spellcheck="false" data-sync="agent1-name">'+ag.n+'</div><div class="d" contenteditable="true" spellcheck="false" data-sync="agent1-info">'+ag.d+'</div>';
+      ca.appendChild(d);
+    });
+  }
+  // Back cover agents
+  if(state.backAgents){
+    var ba=document.getElementById('back-agents');
+    ba.innerHTML='';
+    state.backAgents.forEach(function(ag){
+      var d=document.createElement('div');d.className='cb-x';
+      d.innerHTML='<div class="an" contenteditable="true" spellcheck="false" data-sync="agent1-name">'+ag.an+'</div><div class="ai" contenteditable="true" spellcheck="false" data-sync="agent1-info">'+ag.ai+'</div>';
+      ba.appendChild(d);
+    });
+  }
+  recalc();
+}
+
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){
+    try{
+      var state=captureState();
+      localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    }catch(e){}
+  },2000);
+}
+
+// Listen for changes to trigger auto-save
+document.addEventListener('input',autoSave);
+document.addEventListener('click',function(e){
+  if(e.target.closest('.img-ctrl'))setTimeout(autoSave,100);
+});
+
+// Load button
+document.getElementById('btn-load').addEventListener('click',function(){
+  var raw=localStorage.getItem(SAVE_KEY);
+  if(!raw){alert('No saved session found.');return;}
+  try{
+    var state=JSON.parse(raw);
+    restoreState(state);
+    showToast('Session restored successfully.');
+  }catch(e){alert('Error loading save.');}
+});
+
+// Toast on load if save exists
+function showToast(msg,duration){
+  var t=document.getElementById('om-toast');
+  t.innerHTML=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},duration||4000);
+}
+(function(){
+  var raw=localStorage.getItem(SAVE_KEY);
+  if(raw){
+    showToast('Previous session found — click <span class="toast-link" id="toast-load">Load</span> to restore',8000);
+    setTimeout(function(){
+      var tl=document.getElementById('toast-load');
+      if(tl)tl.addEventListener('click',function(){document.getElementById('btn-load').click();});
+    },50);
+  }
+})();
+
+/* ================================================================
+   FEATURE 2: PHOTO STAGING TRAY
+   ================================================================ */
+var trayPhotos=[];
+var traySelectedIdx=-1;
+var trayOpen=false;
+
+document.getElementById('btn-photos').addEventListener('click',function(){
+  trayOpen=!trayOpen;
+  document.getElementById('photo-tray').classList.toggle('open',trayOpen);
+});
+
+document.getElementById('tray-file-input').addEventListener('change',function(){
+  var files=this.files;
+  for(var i=0;i<files.length;i++){
+    (function(file){
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        trayPhotos.push({src:ev.target.result,placed:false});
+        renderTray();
+      };
+      reader.readAsDataURL(file);
+    })(files[i]);
+  }
+  this.value='';
+});
+
+function renderTray(){
+  var container=document.getElementById('tray-thumbs');
+  container.innerHTML='';
+  trayPhotos.forEach(function(p,i){
+    var d=document.createElement('div');
+    d.className='tray-thumb'+(p.placed?' placed':'')+(i===traySelectedIdx?' active':'');
+    d.innerHTML='<img src="'+p.src+'">';
+    d.addEventListener('click',function(){
+      traySelectedIdx=i;
+      p.placed=false;
+      renderTray();
+    });
+    container.appendChild(d);
+  });
+  var ct=document.getElementById('tray-count');
+  var placed=trayPhotos.filter(function(p){return p.placed;}).length;
+  ct.textContent=trayPhotos.length>0?(placed+'/'+trayPhotos.length+' placed'):'';
+}
+
+function getNextTrayPhoto(){
+  // If a specific one is selected, use it
+  if(traySelectedIdx>=0&&traySelectedIdx<trayPhotos.length){
+    var photo=trayPhotos[traySelectedIdx];
+    photo.placed=true;
+    traySelectedIdx=-1;
+    renderTray();
+    return photo.src;
+  }
+  // Otherwise, use next unplaced
+  for(var i=0;i<trayPhotos.length;i++){
+    if(!trayPhotos[i].placed){
+      trayPhotos[i].placed=true;
+      renderTray();
+      return trayPhotos[i].src;
+    }
+  }
+  return null;
+}
+
+// Override triggerUpload to check tray first (via window._om for cross-script access)
+var origTriggerUpload=_om.triggerUpload;
+_om.triggerUpload=function(container){
+  if(trayOpen&&trayPhotos.length>0){
+    var src=getNextTrayPhoto();
+    if(src){
+      var img=document.createElement('img');
+      img.src=src;
+      img.style.objectPosition='center center';
+      img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';
+      var ph=container.querySelector('.ph');
+      if(ph)ph.replaceWith(img);
+      else{var ex=container.querySelector('img');if(ex)ex.replaceWith(img);}
+      container.classList.add('filled');
+      addImageControls(container,img);
+      autoSave();
+      return;
+    }
+  }
+  origTriggerUpload(container);
+};
+
+/* ================================================================
+   FEATURE 4 & 5: PROGRESS PANEL + NAVIGATION
+   ================================================================ */
+var SECTIONS=[
+  {id:'sec-exec',name:'Executive Summary',contentSel:'.eg3'},
+  {id:'sec-invest',name:'Investment Summary',contentSel:null},
+  {id:'sec-market',name:'Market Summary',contentSel:null},
+  {id:'sec-rent',name:'Rent Roll',contentSel:'#rent-roll-table'},
+  {id:'sec-features',name:'Property Features',contentSel:'.ft'},
+  {id:'sec-gallery',name:'Gallery',contentSel:null},
+  {id:'sec-comps',name:'Sales Comps',contentSel:'#comps-grid'},
+  {id:'sec-finance',name:'Financial Analysis',contentSel:'.f3'},
+  {id:'sec-company',name:'Company Profile',contentSel:'#broker-grid'}
+];
+
+// Populate progress panel
+var ppList=document.getElementById('pp-list');
+SECTIONS.forEach(function(sec){
+  var li=document.createElement('li');
+  li.innerHTML='<span class="pp-dot" id="dot-'+sec.id+'"></span>'+sec.name;
+  li.addEventListener('click',function(){
+    var el=document.getElementById(sec.id);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  ppList.appendChild(li);
+});
+
+// Populate jump-to dropdown
+var jumpSel=document.getElementById('jump-select');
+SECTIONS.forEach(function(sec){
+  var opt=document.createElement('option');
+  opt.value=sec.id;opt.textContent=sec.name;
+  jumpSel.appendChild(opt);
+});
+jumpSel.addEventListener('change',function(){
+  if(this.value){
+    var el=document.getElementById(this.value);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    this.value='';
+  }
+});
+
+// Collapse toggle
+var ppCollapsed=false;
+document.getElementById('pp-toggle-header').addEventListener('click',function(){
+  ppCollapsed=!ppCollapsed;
+  document.getElementById('progress-panel').classList.toggle('collapsed',ppCollapsed);
+  document.getElementById('pp-toggle-btn').innerHTML=ppCollapsed?'&#9650;':'&#9660;';
+  if(ppCollapsed){
+    var count=0;
+    SECTIONS.forEach(function(sec){if(isSectionStarted(sec))count++;});
+    document.getElementById('pp-toggle-btn').insertAdjacentHTML('beforebegin',' ');
+    var title=document.querySelector('.pp-title');
+    title.textContent=count+'/'+SECTIONS.length+' SECTIONS';
+  } else {
+    document.querySelector('.pp-title').textContent='PROGRESS';
+  }
+});
+
+// Defaults for detecting changes
+var DEFAULTS={
+  price:'$0,000,000',units:'0 Units',bsf:'0,000',address:'Property Address, City, State ZIP',
+  'agent1-name':'AGENT NAME',rent:'$0,000',exp:'$0',other:'$0',
+  investText:'Paste your full investment summary here',
+  marketText:'Paste your full market summary here'
+};
+
+function isSectionStarted(sec){
+  var divider=document.getElementById(sec.id);
+  if(!divider)return false;
+  // Check the next sibling page(s) for any edited content
+  var page=divider.nextElementSibling;
+  if(!page)return false;
+  // Check images
+  if(page.querySelector('.ph-zone.filled'))return true;
+  // Check edited text
+  var editables=page.querySelectorAll('[contenteditable="true"]');
+  for(var i=0;i<editables.length;i++){
+    var text=editables[i].textContent.trim();
+    if(text&&text!=='—'&&!isDefault(text))return true;
+  }
+  // Check divider photo
+  if(divider.querySelector('.ph-zone.filled'))return true;
+  return false;
+}
+
+function isDefault(text){
+  for(var k in DEFAULTS){
+    if(text===DEFAULTS[k])return true;
+  }
+  if(text.match(/^(0|YYYY|bd\/ba|0,000|0 spaces|000|Zone Code|Overlay Name|Submarket|County|Multifamily Value-Add|000-000-00-00|Street Address|Property Address|Unit [A-Z]|New 1st Trust Deed|5 Years|\$0|6\.00%|30 Years|Agent Name|AGENT NAME|TITLE \/ ROLE|\(000\) 000-0000|DRE #00000000|email@topguncre\.com|Click to add notes|Brief bio|Comp Address|MM\/DD\/YY|Paste your full|Neighborhood \/ Submarket|\(#\)bd\/ba)$/))return true;
+  return false;
+}
+
+function updateProgress(){
+  SECTIONS.forEach(function(sec){
+    var dot=document.getElementById('dot-'+sec.id);
+    if(dot)dot.classList.toggle('active',isSectionStarted(sec));
+  });
+}
+
+// Update progress periodically
+setInterval(updateProgress,3000);
+updateProgress();
+
+/* ================================================================
+   FEATURE 6: TAB-THROUGH INPUT ORDER
+   ================================================================ */
+(function(){
+  var tabIdx=1;
+  // Cover stats
+  var coverFields=document.querySelectorAll('.cover .st .v[contenteditable="true"]');
+  coverFields.forEach(function(f){f.tabIndex=tabIdx++;});
+  var coverAddr=document.querySelector('.cover .ad[contenteditable="true"]');
+  if(coverAddr)coverAddr.tabIndex=tabIdx++;
+  // Exec summary - 3 columns
+  document.querySelectorAll('.eg3 .er .ev[contenteditable="true"]').forEach(function(f){f.tabIndex=tabIdx++;});
+  // Rent roll rows
+  document.querySelectorAll('#rent-roll-body td[contenteditable="true"]').forEach(function(f){f.tabIndex=tabIdx++;});
+  // Other income
+  document.querySelectorAll('[data-other]').forEach(function(f){f.tabIndex=tabIdx++;});
+  // Property features table
+  document.querySelectorAll('.ft td[contenteditable="true"]').forEach(function(f){f.tabIndex=tabIdx++;});
+  // Comp fields
+  document.querySelectorAll('#comps-grid .ca[contenteditable="true"], #comps-grid .cv[contenteditable="true"]').forEach(function(f){f.tabIndex=tabIdx++;});
+  // Expense rows
+  document.querySelectorAll('#exp-body td[contenteditable="true"]').forEach(function(f){f.tabIndex=tabIdx++;});
+  // Vacancy
+  var vacancy=document.querySelector('[data-calc="vacancy"]');
+  if(vacancy)vacancy.tabIndex=tabIdx++;
+})();
+
+/* ================================================================
+   FEATURE 7: UNDO VIA STATE SNAPSHOTS
+   ================================================================ */
+var undoBuffer=[];
+var MAX_UNDO=10;
+
+setInterval(function(){
+  try{
+    var snap=captureState();
+    undoBuffer.push(JSON.stringify(snap));
+    if(undoBuffer.length>MAX_UNDO)undoBuffer.shift();
+  }catch(e){}
+},30000);
+
+// Take initial snapshot
+try{undoBuffer.push(JSON.stringify(captureState()));}catch(e){}
+
+document.getElementById('btn-undo').addEventListener('click',function(){
+  if(undoBuffer.length<2){
+    showToast('Nothing to undo.');
+    return;
+  }
+  undoBuffer.pop(); // remove current state
+  var prev=undoBuffer[undoBuffer.length-1];
+  try{
+    restoreState(JSON.parse(prev));
+    showToast('Undo applied.');
+  }catch(e){showToast('Undo failed.');}
+});
+
+/* ================================================================
+   FEATURE 8: AUTO-FORMAT CURRENCY FIELDS ON BLUR
+   ================================================================ */
+document.addEventListener('focusout',function(e){
+  var el=e.target;
+  if(!el.hasAttribute('contenteditable'))return;
+  var text=el.textContent.trim();
+  if(!text||text==='—')return;
+
+  // Check calc type
+  var calcType=el.getAttribute('data-calc');
+  if(calcType==='rate'){
+    var n=parseFloat(text.replace(/[^0-9.]/g,''));
+    if(!isNaN(n))el.textContent=n.toFixed(2)+'%';
+    return;
+  }
+  if(calcType==='vacancy'){
+    var n=parseFloat(text.replace(/[^0-9.]/g,''));
+    if(!isNaN(n))el.textContent=n.toFixed(2)+'%';
+    return;
+  }
+  if(calcType==='amort'){
+    var n=parseInt(text.replace(/[^0-9]/g,''));
+    if(!isNaN(n)&&n>0)el.textContent=n+' Years';
+    return;
+  }
+  if(calcType==='term'){
+    var n=parseInt(text.replace(/[^0-9]/g,''));
+    if(!isNaN(n)&&n>0)el.textContent=n+' Years';
+    return;
+  }
+  if(calcType==='units'){
+    var n=parseInt(text.replace(/[^0-9]/g,''));
+    if(!isNaN(n)&&n>0)el.textContent=n+' Units';
+    return;
+  }
+
+  // Currency fields
+  if(el.hasAttribute('data-calc')||el.hasAttribute('data-rent')||el.hasAttribute('data-exp')||el.hasAttribute('data-other')){
+    var n=parseFloat(text.replace(/[^0-9.\-]/g,''));
+    if(!isNaN(n)){
+      var neg=n<0;
+      var a=Math.abs(Math.round(n));
+      var formatted='$'+a.toLocaleString('en-US');
+      el.textContent=neg?'('+formatted+')':formatted;
+    }
+  }
+});
+
+/* ================================================================
+   FEATURE 9: BROKER PROFILE (PERSISTENT)
+   ================================================================ */
+var PROFILE_KEY='tgcre-broker-profile';
+
+document.getElementById('btn-profile').addEventListener('click',function(){
+  loadProfileToModal();
+  document.getElementById('profile-modal').classList.add('open');
+});
+
+document.getElementById('pm-close').addEventListener('click',function(){
+  document.getElementById('profile-modal').classList.remove('open');
+});
+
+document.getElementById('profile-modal').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('open');
+});
+
+// Headshot upload
+document.getElementById('pm-headshot-input').addEventListener('change',function(){
+  var file=this.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var preview=document.getElementById('pm-headshot-preview');
+    preview.innerHTML='<img src="'+ev.target.result+'">';
+    preview.dataset.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  this.value='';
+});
+
+function loadProfileToModal(){
+  var raw=localStorage.getItem(PROFILE_KEY);
+  var profile=raw?JSON.parse(raw):{};
+  document.getElementById('pm-name').value=profile.name||'';
+  document.getElementById('pm-title').value=profile.title||'';
+  document.getElementById('pm-phone').value=profile.phone||'';
+  document.getElementById('pm-email').value=profile.email||'';
+  document.getElementById('pm-dre').value=profile.dre||'';
+  document.getElementById('pm-bio').value=profile.bio||'';
+  var preview=document.getElementById('pm-headshot-preview');
+  if(profile.headshot){
+    preview.innerHTML='<img src="'+profile.headshot+'">';
+    preview.dataset.src=profile.headshot;
+  }else{
+    preview.innerHTML='<span class="ph-text">HEADSHOT</span>';
+    delete preview.dataset.src;
+  }
+}
+
+document.getElementById('pm-save').addEventListener('click',function(){
+  var preview=document.getElementById('pm-headshot-preview');
+  var profile={
+    name:document.getElementById('pm-name').value.trim(),
+    title:document.getElementById('pm-title').value.trim(),
+    phone:document.getElementById('pm-phone').value.trim(),
+    email:document.getElementById('pm-email').value.trim(),
+    dre:document.getElementById('pm-dre').value.trim(),
+    bio:document.getElementById('pm-bio').value.trim(),
+    headshot:preview.dataset.src||''
+  };
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
+  document.getElementById('profile-modal').classList.remove('open');
+  showToast('Broker profile saved.');
+  applyProfile(profile);
+});
+
+document.getElementById('pm-clear').addEventListener('click',function(){
+  if(!confirm('Clear your saved broker profile?'))return;
+  localStorage.removeItem(PROFILE_KEY);
+  document.getElementById('pm-name').value='';
+  document.getElementById('pm-title').value='';
+  document.getElementById('pm-phone').value='';
+  document.getElementById('pm-email').value='';
+  document.getElementById('pm-dre').value='';
+  document.getElementById('pm-bio').value='';
+  var preview=document.getElementById('pm-headshot-preview');
+  preview.innerHTML='<span class="ph-text">HEADSHOT</span>';
+  delete preview.dataset.src;
+  showToast('Profile cleared.');
+});
+
+function applyProfile(profile){
+  if(!profile||!profile.name)return;
+  // Build info line
+  var infoParts=[];
+  if(profile.phone)infoParts.push(profile.phone);
+  if(profile.email)infoParts.push(profile.email);
+  if(profile.dre)infoParts.push('DRE #'+profile.dre);
+  var infoLine=infoParts.join(' \u2022 ');
+
+  // Cover — first agent
+  var coverAg=document.querySelector('#cover-agents .ag');
+  if(coverAg){
+    var cn=coverAg.querySelector('.n');if(cn)cn.textContent=profile.name;
+    var cd=coverAg.querySelector('.d');if(cd)cd.textContent=infoLine;
+  }
+
+  // Back cover — first agent
+  var backAg=document.querySelector('#back-agents .cb-x');
+  if(backAg){
+    var an=backAg.querySelector('.an');if(an)an.textContent=profile.name;
+    var ai=backAg.querySelector('.ai');if(ai)ai.textContent=infoLine;
+  }
+
+  // Company profile — first broker card
+  var brokerCard=document.querySelector('#broker-grid .broker-card');
+  if(brokerCard){
+    var bn=brokerCard.querySelector('.bk-name');if(bn)bn.textContent=profile.name;
+    var bt=brokerCard.querySelector('.bk-title');if(bt)bt.textContent=profile.title||'TITLE / ROLE';
+    var bd=brokerCard.querySelector('.bk-details');
+    if(bd){
+      var detParts=[];
+      if(profile.phone)detParts.push(profile.phone);
+      if(profile.email)detParts.push(profile.email);
+      var detLine=detParts.join(' \u2022 ');
+      if(profile.dre)detLine+='<br>DRE #'+profile.dre;
+      bd.innerHTML=detLine;
+    }
+    var bb=brokerCard.querySelector('.bk-bio');if(bb&&profile.bio)bb.textContent=profile.bio;
+    // Headshot
+    if(profile.headshot){
+      var bpz=brokerCard.querySelector('.bk-photo');
+      if(bpz){
+        var img=document.createElement('img');
+        img.src=profile.headshot;img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';
+        img.style.objectPosition='center center';
+        var ph=bpz.querySelector('.ph');
+        if(ph)ph.replaceWith(img);
+        else{var ex=bpz.querySelector('img');if(ex)ex.replaceWith(img);}
+        bpz.classList.add('filled');
+        addImageControls(bpz,img);
+      }
+    }
+  }
+}
+
+// Auto-populate profile on fresh load (no existing save)
+(function(){
+  var raw=localStorage.getItem(PROFILE_KEY);
+  if(!raw)return;
+  var hasSave=localStorage.getItem(SAVE_KEY);
+  if(hasSave)return; // don't override saved state
+  try{
+    var profile=JSON.parse(raw);
+    applyProfile(profile);
+  }catch(e){}
+})();
+
+})();
+</script>
+</body>
+</html>
