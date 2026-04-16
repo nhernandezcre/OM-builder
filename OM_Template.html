@@ -108,7 +108,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .cover .om{position:absolute;top:16px;right:22px;font-family:'Bebas Neue';font-size:11px;letter-spacing:3px;color:var(--teal);background:rgba(11,29,58,.65);border:1px solid rgba(0,180,216,.25);padding:5px 14px;z-index:5}
 .cover .br{position:absolute;top:12px;left:22px;z-index:5;display:flex;align-items:center;gap:8px}
 .cover .br .br-text{font-family:'Bebas Neue';font-size:12px;letter-spacing:3px;color:white}
-.cover .br .cover-logo{height:60px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:inline-block}
+.cover .br .cover-logo{height:100px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:inline-block}
 .cover .ol{font-family:'Bebas Neue';font-size:11px;letter-spacing:5px;color:var(--teal);margin-bottom:5px}
 .cover h1{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:white;line-height:1.02;margin-bottom:3px;max-width:62%}
 .cover h1 em{font-style:italic;color:var(--teal)}
@@ -239,8 +239,8 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .back{background:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
 .back::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 50px,rgba(255,255,255,.006) 50px,rgba(255,255,255,.006) 51px)}
 .back>div{position:relative;z-index:2}
-.back .back-logo-zone{width:120px;height:120px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
-.back .back-logo-zone img{width:120px;height:120px;object-fit:contain;filter:brightness(0) invert(1)}
+.back .back-logo-zone{width:200px;height:200px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.back .back-logo-zone img{width:200px;height:200px;object-fit:contain;filter:brightness(0) invert(1)}
 .back .icon{width:50px;height:50px;background:rgba(0,180,216,.1);border:1.5px solid rgba(0,180,216,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Bebas Neue';font-size:16px;color:var(--teal)}
 .back h2{font-family:'Bebas Neue';font-size:28px;color:white;letter-spacing:3px}.back h2 span{color:var(--teal)}
 .back .tag{font-family:'Playfair Display',serif;font-size:13px;font-style:italic;color:rgba(255,255,255,.35);margin:3px 0 16px}
@@ -1087,4 +1087,4 @@ function makeBrokerCard(){
   card.style.position='relative';
   card.innerHTML='<button class="del-broker-btn screen-only" onclick="deleteBroker(this)" title="Remove">&times;</button><div class="bk-photo ph-zone"><div class="ph" style="font-size:7px">HEADSHOT</div></div><div class="bk-info"><div class="bk-name" contenteditable="true" spellcheck="false">Agent Name</div><div class="bk-title" contenteditable="true" spellcheck="false">TITLE / ROLE</div><div class="bk-details" contenteditable="true" spellcheck="false">(000) 000-0000 &bull; email@topguncre.com<br>DRE #00000000</div><div class="bk-bio" contenteditable="true" spellcheck="false">Brief bio — experience, background, specialties. Click to edit.</div></div>';
   attachUpload(card.querySelector('.ph-zone'));
-  return c
+  return 
