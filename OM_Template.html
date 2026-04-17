@@ -85,7 +85,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* ===== HEADER / FOOTER ===== */
 .hdr{position:absolute;top:0;left:0;right:0;height:30px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:20}
-.hdr .s{font-family:'Bebas Neue';font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.65)}
+.hdr .s{font-family:'Bebas Neue';font-size:11px;letter-spacing:3px;color:var(--teal)}
 .hdr .p{font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--teal)}
 .hdr .a{font-size:9px;color:rgba(255,255,255,.45)}
 .hdr .hdr-logo{height:16px;width:auto;object-fit:contain;filter:brightness(0) invert(1);display:none}
@@ -96,7 +96,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 /* Utility */
 .sec-label{font-family:'Bebas Neue';font-size:11px;letter-spacing:4px;color:var(--teal);display:none}
 .sdiv .sec-label{display:block}
-.sec-h{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--teal);margin-bottom:2px}
+.sec-h{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--navy);margin-bottom:2px}
 .rule{width:40px;height:2px;background:var(--teal);margin:5px 0 10px}
 
 /* ===== COVER — lighter overlay ===== */
@@ -641,7 +641,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
       </div>
       <div class="ec3">
         <h3>Proposed Financing</h3>
-        <div class="er"><span class="el">Loan Type</span><span class="ev" contenteditable="true" spellcheck="false" id="loan-type-field">New 1st Trust Deed</span></div>
+        <div class="er"><span class="el">Loan Type</span><span class="ev" id="loan-type-field" style="cursor:pointer;border-bottom:1px dashed rgba(0,180,216,.4)" title="Click to select loan type">New 1st Trust Deed</span></div>
         <div class="er"><span class="el">Due In</span><span class="ev" contenteditable="true" spellcheck="false" data-calc="term">5 Years</span></div>
         <div class="er"><span class="el">Down Payment</span><span class="ev" data-out="down-display">—</span></div>
         <div class="er"><span class="el">Annual Debt Svc</span><span class="ev" data-out="annual-ds">—</span></div>
@@ -1170,6 +1170,20 @@ function addImageControls(container,img){
   });
 }
 
+function downscaleToDataURL(rawURL,maxDim,quality,cb){
+  var probe=new Image();
+  probe.onload=function(){
+    var w=probe.width,h=probe.height;
+    if(w<=maxDim&&h<=maxDim){cb(rawURL);return;}
+    if(w>h){h=Math.round(h*(maxDim/w));w=maxDim;}
+    else{w=Math.round(w*(maxDim/h));h=maxDim;}
+    var c=document.createElement('canvas');c.width=w;c.height=h;
+    c.getContext('2d').drawImage(probe,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',quality));
+  };
+  probe.onerror=function(){cb(rawURL);};
+  probe.src=rawURL;
+}
 function triggerUpload(container){
   var input=document.createElement('input');
   input.type='file';input.accept='image/*';input.style.display='none';
@@ -1179,17 +1193,19 @@ function triggerUpload(container){
     if(!file){document.body.removeChild(input);return;}
     var reader=new FileReader();
     reader.onload=function(ev){
-      var img=document.createElement('img');
-      img.src=ev.target.result;
-      img.style.objectPosition='center center';
-      img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';
-      var ph=container.querySelector('.ph');
-      if(ph)ph.replaceWith(img);
-      else{var ex=container.querySelector('img');if(ex)ex.replaceWith(img);}
-      container.classList.add('filled');
-      addImageControls(container,img);
-      if(container.id==='cover-hero'){var cb=document.getElementById('cover-upload-btn');if(cb)cb.style.display='none';if(window._spreadCover)window._spreadCover(ev.target.result);}
-      document.body.removeChild(input);
+      downscaleToDataURL(ev.target.result,1400,0.82,function(compressedURL){
+        var img=document.createElement('img');
+        img.src=compressedURL;
+        img.style.objectPosition='center center';
+        img.dataset.scale='1';img.dataset.px='50';img.dataset.py='50';
+        var ph=container.querySelector('.ph');
+        if(ph)ph.replaceWith(img);
+        else{var ex=container.querySelector('img');if(ex)ex.replaceWith(img);}
+        container.classList.add('filled');
+        addImageControls(container,img);
+        if(container.id==='cover-hero'){var cb=document.getElementById('cover-upload-btn');if(cb)cb.style.display='none';if(window._spreadCover)window._spreadCover(compressedURL);}
+        document.body.removeChild(input);
+      });
     };
     reader.readAsDataURL(file);
   });
@@ -1993,7 +2009,7 @@ function placeTrayPhoto(idx,container){
     var rawImg=new Image();
     rawImg.onload=function(){
       var w=rawImg.width,h=rawImg.height;
-      var max=2000;
+      var max=1400;
       if(w>max||h>max){
         if(w>h){h=Math.round(h*(max/w));w=max;}
         else{w=Math.round(w*(max/h));h=max;}
@@ -2001,7 +2017,7 @@ function placeTrayPhoto(idx,container){
       var c=document.createElement('canvas');
       c.width=w;c.height=h;
       c.getContext('2d').drawImage(rawImg,0,0,w,h);
-      p.b64=c.toDataURL('image/jpeg',0.88);
+      p.b64=c.toDataURL('image/jpeg',0.82);
       doPlace(p.b64,container,idx);
     };
     rawImg.src=ev.target.result;
@@ -2671,7 +2687,14 @@ function applyProfile(profile){
     if(!item)return;
     var val=item.getAttribute('data-val');
     popup.classList.remove('open');
-    if(val===''){field.textContent='';field.focus();return;}
+    if(val===''){
+      field.setAttribute('contenteditable','true');
+      field.textContent='';
+      field.focus();
+      var blurHandler=function(){field.removeAttribute('contenteditable');field.removeEventListener('blur',blurHandler);autoSave();};
+      field.addEventListener('blur',blurHandler);
+      return;
+    }
     field.textContent=val;
     field.classList.remove('is-placeholder');
 
@@ -2692,6 +2715,8 @@ function applyProfile(profile){
           document.querySelectorAll('[data-out="'+key+'"]').forEach(function(el){el.textContent=fmtCur(price);});
         });
       }
+      autoSave();
+      return;
     }
     recalc();
     autoSave();
