@@ -1523,7 +1523,57 @@ document.addEventListener('input',function(e){
 recalc();
 
 /* ===== TOOLBAR BUTTONS ===== */
-document.getElementById('btn-pdf').addEventListener('click',function(){window.print();});
+/* PDF export with image compression for smaller file size */
+document.getElementById('btn-pdf').addEventListener('click',function(){
+  var btn=this;
+  btn.textContent='COMPRESSING...';btn.disabled=true;
+
+  var imgs=[];
+  document.querySelectorAll('.ph-zone img, #cover-hero img, .sdiv-bg img').forEach(function(img){
+    if(img.src&&img.src.indexOf('data:')===0){
+      imgs.push({el:img,original:img.src});
+    }
+  });
+
+  if(imgs.length===0){
+    btn.textContent='DOWNLOAD PDF';btn.disabled=false;
+    window.print();
+    return;
+  }
+
+  function compressOne(rawURL,maxDim,quality,cb){
+    var probe=new Image();
+    probe.onload=function(){
+      var w=probe.width,h=probe.height;
+      if(w>maxDim||h>maxDim){
+        if(w>h){h=Math.round(h*(maxDim/w));w=maxDim;}
+        else{w=Math.round(w*(maxDim/h));h=maxDim;}
+      }
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(probe,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',quality));
+    };
+    probe.onerror=function(){cb(rawURL);};
+    probe.src=rawURL;
+  }
+
+  var pending=imgs.length;
+  imgs.forEach(function(item){
+    compressOne(item.original,1100,0.68,function(compressed){
+      item.el.src=compressed;
+      pending--;
+      if(pending===0){
+        btn.textContent='DOWNLOAD PDF';btn.disabled=false;
+        setTimeout(function(){
+          window.print();
+          setTimeout(function(){
+            imgs.forEach(function(i){i.el.src=i.original;});
+          },1500);
+        },100);
+      }
+    });
+  });
+});
 document.getElementById('btn-reset').addEventListener('click',function(){
   if(confirm('Reset all content back to the blank template? This cannot be undone.')){
     try{localStorage.removeItem('tgcre-om-save');}catch(e){}
